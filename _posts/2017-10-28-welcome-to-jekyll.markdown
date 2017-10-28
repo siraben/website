@@ -1,25 +1,39 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
+title:  "Hello, world!"
 date:   2017-10-28 21:36:29 +0900
-categories: jekyll update
+categories: update
 ---
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+# Header 1
+## Header 2 (why is this bigger?)
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
 
-To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+[My favorite search engine.](https://ddg.gg)
 
-Jekyll also offers powerful support for code snippets:
+Since it's Markdown, it's possible to have text **bold**, _italicized_ __*or even both!*__
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+|   This   |    is     |   a   |
+| :------: | :-------: | :---: |
+|   test   |    of     |  the  |
+|  table   | rendering |  in   |
+| Jehykll. |   Very    | nice! |
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+
+### C Code Syntax Highlighting
+```c
+int main(void)
+{
+    printf("hello, world!\n");
+    return 0;
+}
+```
+
+### Javascript Bookmarklet that calculates GPA
+```javascript
+javascript:(function(){var d=function(){var a=Array.prototype.map.call(document.getElementsByClassName("linkDescList grid"),function(a){return Array.prototype.map.call(a.querySelectorAll("td"),function(a){return a.innerHTML})});a=function(a,b){for(var c=[],e=0,f=a.length;e<f;)c.push(a.slice(e,e+=b));return c}(a[0],16);for(var e=0,f=0,k={7:4.3,6:4,5:3.3,4:2.3,3:1.3,2:0,1:0},h=0,b=0;b<a.length;b++){var c=a[b][12].match(/<a\s+href="[\S\s]*?">[\S\s]*?<\/a>/gi);if(null==c)break;c=parseInt(c[0].replace(/(<\/?[^>]+>)/gi,""));
+e++;f+=k[c];"IB"!=a[b][11].substring(0,2)&&"AP"!=a[b][11].substring(0,2)||"IB Math Studies"==a[b][11].substring(0,15)||(f+=.5);h+=c}return[h/e,f/e]}(),g="(S1) GPA: "+d[0].toFixed(3);d="Traditional GPA: "+d[1].toFixed(3);var l=document.createElement("p");l.style.fontSize="20px";l.style.fontFamily="Helvetica";l.style.textAlign="center";l.style.marginBottom="-5px";l.appendChild(document.createTextNode(g));l.appendChild(document.createElement("br"));l.appendChild(document.createTextNode(d));document.getElementsByTagName("tbody")[2].appendChild(l);})();
+```
