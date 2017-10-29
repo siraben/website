@@ -24,7 +24,7 @@ url: "siraben.github.io" # the base hostname & protocol for your site, e.g. http
 github_username:  Siraben
 
 # Build settings
-markdown: kramdown
+markdown: kramdown 
 theme: minima
 plugins:
   - jekyll-feed
