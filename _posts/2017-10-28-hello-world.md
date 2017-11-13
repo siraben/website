@@ -21,6 +21,7 @@ Since it's Markdown, it's possible to have text **bold**, _italicized_ __*or eve
 |  table   | rendering |  in   |
 |  Jekyll  |   Very    | nice! |
 
+## Sample Code
 
 ### C Code Syntax Highlighting
 ```c
