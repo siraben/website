@@ -9,15 +9,15 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Haskellers love monads, and there’s a good reason why. Without monads, Haskell wouldn’t have much of an I/O system at all, as Simon Peyton-Jones described it, it was embarassing to note that the emperor lacked I/O at conferences. Nevertheless, Haskell could be considered the world’s finest imperative language because of the way its type system forces one to separate purity and impurity, allowing the use of pure functions in impure code, but not vice versa." />
 <meta property="og:description" content="Haskellers love monads, and there’s a good reason why. Without monads, Haskell wouldn’t have much of an I/O system at all, as Simon Peyton-Jones described it, it was embarassing to note that the emperor lacked I/O at conferences. Nevertheless, Haskell could be considered the world’s finest imperative language because of the way its type system forces one to separate purity and impurity, allowing the use of pure functions in impure code, but not vice versa." />
-<link rel="canonical" href="http://localhost:4000/2020/02/20/free-monads.html" />
-<meta property="og:url" content="http://localhost:4000/2020/02/20/free-monads.html" />
+<link rel="canonical" href="siraben.github.io/2020/02/20/free-monads.html" />
+<meta property="og:url" content="siraben.github.io/2020/02/20/free-monads.html" />
 <meta property="og:site_name" content="siraben’s musings" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-02-20T17:49:00-06:00" />
 <script type="application/ld+json">
-{"description":"Haskellers love monads, and there’s a good reason why. Without monads, Haskell wouldn’t have much of an I/O system at all, as Simon Peyton-Jones described it, it was embarassing to note that the emperor lacked I/O at conferences. Nevertheless, Haskell could be considered the world’s finest imperative language because of the way its type system forces one to separate purity and impurity, allowing the use of pure functions in impure code, but not vice versa.","@type":"BlogPosting","url":"http://localhost:4000/2020/02/20/free-monads.html","headline":"Free Monads from Scratch","dateModified":"2020-02-20T17:49:00-06:00","datePublished":"2020-02-20T17:49:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2020/02/20/free-monads.html"},"@context":"https://schema.org"}</script>
+{"url":"siraben.github.io/2020/02/20/free-monads.html","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/20/free-monads.html"},"datePublished":"2020-02-20T17:49:00-06:00","description":"Haskellers love monads, and there’s a good reason why. Without monads, Haskell wouldn’t have much of an I/O system at all, as Simon Peyton-Jones described it, it was embarassing to note that the emperor lacked I/O at conferences. Nevertheless, Haskell could be considered the world’s finest imperative language because of the way its type system forces one to separate purity and impurity, allowing the use of pure functions in impure code, but not vice versa.","@type":"BlogPosting","headline":"Free Monads from Scratch","dateModified":"2020-02-20T17:49:00-06:00","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
-<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="siraben's musings" /></head>
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="siraben.github.io/feed.xml" title="siraben's musings" /></head>
 <body><header class="site-header" role="banner">
 
   <div class="wrapper"><a class="site-title" rel="author" href="/">siraben&#39;s musings</a><nav class="site-nav">

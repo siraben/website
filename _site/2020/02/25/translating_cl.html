@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Common Lisp to Haskell, a case study | siraben’s musings</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Common Lisp to Haskell, a case study" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell." />
+<meta property="og:description" content="Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell." />
+<link rel="canonical" href="siraben.github.io/2020/02/25/translating_cl.html" />
+<meta property="og:url" content="siraben.github.io/2020/02/25/translating_cl.html" />
+<meta property="og:site_name" content="siraben’s musings" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-02-25T18:46:00-06:00" />
+<script type="application/ld+json">
+{"url":"siraben.github.io/2020/02/25/translating_cl.html","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/25/translating_cl.html"},"datePublished":"2020-02-25T18:46:00-06:00","description":"Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell.","@type":"BlogPosting","headline":"Common Lisp to Haskell, a case study","dateModified":"2020-02-25T18:46:00-06:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="siraben.github.io/feed.xml" title="siraben's musings" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">siraben&#39;s musings</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Common Lisp to Haskell, a case study</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-02-25T18:46:00-06:00" itemprop="datePublished">Feb 25, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Lisp programs have their own particular style, often involving mutable
+state, macros, meta-programming and more, which is to be expected of
+such a flexible language.  Haskell, on the other hand, seems to be a
+different world altogether, encapsulating effects with monads, a
+strong <a href="https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system">type
+system</a>,
+and occasionally, use of Template Haskell.</p>
+
+<p>So how difficult would it be to translate a Common Lisp program to
+Haskell, in a way that makes the translated code seem idiomatic?  The
+answer is through a careful choice of what Haskell features to use, in
+this case, monad transformers, but also a lesser-known technique—the
+<a href="http://okmij.org/ftp/tagless-final/course/lecture.pdf">tagless final</a>
+style.</p>
+
+<p>Get the full code <a href="https://github.com/siraben/hasktran">here</a>.</p>
+
+<h1 id="the-common-lisp-program-an-assembler-for-fractran">The Common Lisp program: an assembler for FRACTRAN</h1>
+<p>A couple of years ago, malisper wrote a <a href="https://malisper.me/building-fizzbuzz-fractran-bottom/">blog
+post</a> on
+writing an assembler for the esoteric programming language
+<a href="https://en.wikipedia.org/wiki/Fractran">FRACTRAN</a> in Common Lisp.
+It’s quite a nice display of the power of Common Lisp, particularly
+the macro system.  We’re going to display a Common Lisp code block
+followed by its translated Haskell variant, when possible.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*cur-inst-prime*</span> <span class="no">nil</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*next-inst-prime*</span> <span class="no">nil</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*lisptran-labels*</span> <span class="no">nil</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*lisptran-vars*</span> <span class="no">nil</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*next-new-prime*</span> <span class="no">nil</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Unsurprisingly, this global state is encapsulated with the state
+monad.  <code class="highlighter-rouge">ExceptT</code> appears too because we want to be able to throw an
+error when a label is not found in the map.  We’re also using the
+<code class="highlighter-rouge">Math.NumberTheory.Primes</code> package to generate the infinite stream of
+primes for us.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Map</span> <span class="k">as</span> <span class="n">M</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Math.NumberTheory.Primes</span> <span class="k">as</span> <span class="n">P</span>
+<span class="kr">data</span> <span class="kt">CompState</span> <span class="o">=</span>
+  <span class="kt">CompState</span>
+    <span class="p">{</span> <span class="n">currInstPrime</span><span class="p">,</span> <span class="n">nextInstPrime</span> <span class="o">::</span> <span class="kt">Integer</span>
+    <span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">vars</span> <span class="o">::</span> <span class="kt">M</span><span class="o">.</span><span class="kt">Map</span> <span class="kt">String</span> <span class="kt">Integer</span>
+    <span class="p">,</span> <span class="n">primes</span> <span class="o">::</span> <span class="p">[</span><span class="kt">P</span><span class="o">.</span><span class="kt">Prime</span> <span class="kt">Integer</span><span class="p">]</span>
+    <span class="p">,</span> <span class="n">gensymCount</span> <span class="o">::</span> <span class="kt">Integer</span>
+    <span class="p">}</span>
+  <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+<span class="kr">newtype</span> <span class="kt">Comp</span> <span class="n">a</span> <span class="o">=</span>
+  <span class="kt">Comp</span> <span class="p">{</span> <span class="n">runComp</span> <span class="o">::</span> <span class="kt">ExceptT</span> <span class="kt">String</span> <span class="p">(</span><span class="kt">State</span> <span class="kt">CompState</span><span class="p">)</span> <span class="n">a</span> <span class="p">}</span>
+  <span class="kr">deriving</span> <span class="p">(</span> <span class="kt">Functor</span><span class="p">,</span> <span class="kt">Applicative</span><span class="p">,</span> <span class="kt">Monad</span><span class="p">,</span> 
+           <span class="p">,</span> <span class="kt">MonadState</span> <span class="kt">CompState</span><span class="p">,</span> <span class="kt">MonadError</span> <span class="kt">String</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">new-prime</code> generates a fresh prime and places it in
+<code class="highlighter-rouge">*next-new-prime*</code>.  In our case, we have an infinite list of primes,
+so <code class="highlighter-rouge">newPrime</code> should just advance the list and return the old head.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defun</span> <span class="nv">new-prime</span> <span class="p">()</span>
+  <span class="s">"Returns a new prime we haven't used yet."</span>
+  <span class="p">(</span><span class="nb">prog1</span> <span class="vg">*next-new-prime*</span>
+    <span class="p">(</span><span class="nb">setf</span> <span class="vg">*next-new-prime*</span>
+          <span class="p">(</span><span class="nb">loop</span> <span class="nv">for</span> <span class="nv">i</span> <span class="nv">from</span> <span class="p">(</span><span class="nb">+</span> <span class="vg">*next-new-prime*</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nv">prime</span> <span class="nv">i</span><span class="p">)</span>
+                  <span class="nb">return</span> <span class="nv">i</span><span class="p">))))</span>
+</code></pre></div></div>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">newPrime</span> <span class="o">::</span> <span class="kt">Comp</span> <span class="kt">Integer</span>
+<span class="n">newPrime</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">l</span> <span class="o">&lt;-</span> <span class="n">gets</span> <span class="n">primes</span>
+  <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">primes</span> <span class="o">=</span> <span class="n">tail</span> <span class="n">l</span><span class="p">})</span>
+  <span class="n">return</span> <span class="p">(</span><span class="kt">P</span><span class="o">.</span><span class="n">unPrime</span> <span class="p">(</span><span class="n">head</span> <span class="n">l</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">advance</code> is a sequence of assignments, so the translation is
+straightforward.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defun</span> <span class="nv">advance</span> <span class="p">()</span>
+  <span class="p">(</span><span class="nb">setf</span> <span class="vg">*cur-inst-prime*</span> <span class="vg">*next-inst-prime*</span>
+        <span class="vg">*next-inst-prime*</span> <span class="p">(</span><span class="nv">new-prime</span><span class="p">)))</span>
+</code></pre></div></div>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">advance</span> <span class="o">::</span> <span class="kt">Comp</span> <span class="nb">()</span>
+<span class="n">advance</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">c</span> <span class="o">&lt;-</span> <span class="n">gets</span> <span class="n">nextInstPrime</span>
+  <span class="n">p</span> <span class="o">&lt;-</span> <span class="n">newPrime</span>
+  <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">currInstPrime</span> <span class="o">=</span> <span class="n">c</span><span class="p">,</span> <span class="n">nextInstPrime</span> <span class="o">=</span> <span class="n">p</span><span class="p">})</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">prime-for-label</code> looks up a label and returns its value if found, and
+inserts it otherwise. <code class="highlighter-rouge">prime-for-var</code> is defined similarly.</p>
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defun</span> <span class="nv">prime-for-label</span> <span class="p">(</span><span class="nv">label</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">or</span> <span class="p">(</span><span class="nb">gethash</span> <span class="nv">label</span> <span class="vg">*lisptran-labels*</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">setf</span> <span class="p">(</span><span class="nb">gethash</span> <span class="nv">label</span> <span class="vg">*lisptran-labels*</span><span class="p">)</span>
+            <span class="p">(</span><span class="nv">new-prime</span><span class="p">))))</span>
+</code></pre></div></div>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">primeForLabel</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="kt">Comp</span> <span class="kt">Integer</span>
+<span class="n">primeForLabel</span> <span class="n">label</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">labels</span> <span class="o">&lt;-</span> <span class="n">gets</span> <span class="n">labels</span>
+  <span class="kr">case</span> <span class="kt">M</span><span class="o">.</span><span class="n">lookup</span> <span class="n">label</span> <span class="n">labels</span> <span class="kr">of</span>
+    <span class="kt">Just</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">return</span> <span class="n">p</span>
+    <span class="kt">Nothing</span> <span class="o">-&gt;</span> <span class="kr">do</span>
+      <span class="n">p</span> <span class="o">&lt;-</span> <span class="n">newPrime</span>
+      <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">labels</span> <span class="o">=</span> <span class="kt">M</span><span class="o">.</span><span class="n">insert</span> <span class="n">label</span> <span class="n">p</span> <span class="n">labels</span><span class="p">})</span>
+      <span class="n">return</span> <span class="n">p</span>
+</code></pre></div></div>
+<h1 id="an-awkward-step">An awkward step</h1>
+<p>Now we run into a little bit of an issue;</p>
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">deftran</span> <span class="p">(</span><span class="nv">name</span> <span class="nv">args</span> <span class="k">&amp;body</span> <span class="nv">body</span><span class="p">)</span>
+  <span class="s">"Define a Lisptran macro."</span>
+  <span class="p">(</span><span class="nb">setf</span> <span class="p">(</span><span class="nb">gethash</span> <span class="ss">',name</span> <span class="vg">*lisptran-macros*</span><span class="p">)</span>
+        <span class="p">(</span><span class="k">lambda</span> <span class="o">,</span><span class="nv">args</span> <span class="o">,@</span><span class="nv">body</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>We don’t have macros in Haskell!  This is where our translation starts
+to diverge.  In such a case, it is useful to read the rest of the Lisp
+code and see the larger structures at play, in this case, how the
+<code class="highlighter-rouge">deftran</code> macro is used, for instance, in the definitions of <code class="highlighter-rouge">addi</code>,
+<code class="highlighter-rouge">subi</code> and <code class="highlighter-rouge">&gt;=i</code>.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nv">deftran</span> <span class="nv">addi</span> <span class="p">(</span><span class="nv">x</span> <span class="nv">y</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">prog1</span> <span class="p">(</span><span class="nb">list</span> <span class="p">(</span><span class="nb">/</span> <span class="p">(</span><span class="nb">*</span> <span class="vg">*next*</span> <span class="p">(</span><span class="nb">expt</span> <span class="p">(</span><span class="nv">prime-for-var</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">y</span><span class="p">))</span>
+                  <span class="vg">*cur*</span><span class="p">))</span>
+    <span class="p">(</span><span class="nv">advance</span><span class="p">)))</span>
+<span class="p">(</span><span class="nv">deftran</span> <span class="nv">subi</span> <span class="p">(</span><span class="nv">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">((</span><span class="nv">addi</span> <span class="nv">x</span> <span class="o">,</span><span class="p">(</span><span class="nb">-</span> <span class="nv">y</span><span class="p">))))</span>
+<span class="p">(</span><span class="nv">deftran</span> <span class="nv">&gt;=i</span> <span class="p">(</span><span class="nv">var</span> <span class="nv">val</span> <span class="nv">label</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">prog1</span> <span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">restore</span> <span class="p">(</span><span class="nv">new-prime</span><span class="p">)))</span>
+           <span class="p">(</span><span class="nb">list</span> <span class="p">(</span><span class="nb">/</span> <span class="nv">restore</span>
+                    <span class="p">(</span><span class="nb">expt</span> <span class="p">(</span><span class="nv">prime-for-var</span> <span class="nv">var</span><span class="p">)</span> <span class="nv">val</span><span class="p">)</span>
+                    <span class="vg">*cur-inst-prime*</span><span class="p">)</span>
+                 <span class="p">(</span><span class="nb">/</span> <span class="p">(</span><span class="nb">*</span> <span class="p">(</span><span class="nv">prime-for-label</span> <span class="nv">label</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">expt</span> <span class="p">(</span><span class="nv">prime-for-var</span> <span class="nv">var</span><span class="p">)</span> <span class="nv">val</span><span class="p">))</span>
+                    <span class="nv">restore</span><span class="p">)</span>
+                 <span class="p">(</span><span class="nb">/</span> <span class="vg">*next-inst-prime*</span> <span class="vg">*cur-inst-prime*</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nv">advance</span><span class="p">)))</span>
+</code></pre></div></div>
+<p>It would seem that we are stuck.  We could generate lists of
+<code class="highlighter-rouge">Rationals</code>, but the use of <code class="highlighter-rouge">advance</code> forces us to use the State
+monad.  Furthermore, in <code class="highlighter-rouge">subi</code>, it calls <code class="highlighter-rouge">addi</code>!</p>
+
+<p>One approach would be to express the instructions as a data type;</p>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">type</span> <span class="kt">Var</span> <span class="o">=</span> <span class="kt">String</span>
+<span class="kr">type</span> <span class="kt">Label</span> <span class="o">=</span> <span class="kt">String</span>
+<span class="kr">data</span> <span class="kt">Instr</span> <span class="o">=</span> <span class="kt">Addi</span> <span class="kt">Var</span> <span class="kt">Int</span>
+           <span class="o">|</span> <span class="kt">Subi</span> <span class="kt">Var</span> <span class="kt">Int</span>
+           <span class="o">|</span> <span class="kt">Jge</span> <span class="kt">Var</span> <span class="kt">Int</span> <span class="kt">Label</span>
+           <span class="o">...</span>
+</code></pre></div></div>
+
+<p>But we lose a critical feature of macros, that they can be used in
+other macros, such as <code class="highlighter-rouge">subi</code> calling <code class="highlighter-rouge">addi</code>, and when we add a new
+instruction, we have to go through the entire codebase to handle the
+extra case, this is the infamous <em>expression problem</em>.  Fortunately,
+much work has been carried out in attempting to resolve this, with one
+promising approach being the <em>tagless final approach</em>.  That is can
+express <code class="highlighter-rouge">addi</code>, <code class="highlighter-rouge">subi</code> and more using a typeclass, rather than a data
+declaration?  The answer is a resounding yes.</p>
+
+<h1 id="a-macro-is-a-tagless-final-encoding">A macro is a tagless final encoding!</h1>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">class</span> <span class="kt">MonadState</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="kr">where</span>
+  <span class="n">lit</span> <span class="o">::</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+  <span class="n">label</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+  <span class="n">addi</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+  <span class="n">jge</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+  <span class="n">gensym</span> <span class="o">::</span> <span class="n">repr</span> <span class="kt">String</span>
+  <span class="n">subi</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+  <span class="n">subi</span> <span class="n">x</span> <span class="n">y</span> <span class="o">=</span> <span class="n">addi</span> <span class="n">x</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Now the definition of <code class="highlighter-rouge">subi</code> looks just like the Lisp one!  What’s
+going on in this typeclass is that <code class="highlighter-rouge">repr</code> is a higher-kinded type,
+<code class="highlighter-rouge">repr :: * -&gt; *</code>.  The <code class="highlighter-rouge">FracComp</code> typeclass has a constraint, <code class="highlighter-rouge">repr</code>
+has to support being a State monad, because we will need a notion of
+sequencing label generation to assemble programs correctly.</p>
+
+<p>This extends naturally to <code class="highlighter-rouge">deftran</code> definitions that have side
+effects, for instance, <code class="highlighter-rouge">gensym</code> in <code class="highlighter-rouge">goto</code>.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nv">deftran</span> <span class="nv">goto</span> <span class="p">(</span><span class="nv">label</span><span class="p">)</span> <span class="o">`</span><span class="p">((</span><span class="nv">&gt;=i</span> <span class="o">,</span><span class="p">(</span><span class="nb">gensym</span><span class="p">)</span> <span class="mi">0</span> <span class="o">,</span><span class="nv">label</span><span class="p">)))</span>
+</code></pre></div></div>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">goto</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+<span class="n">goto</span> <span class="n">dest</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">g</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
+  <span class="n">jge</span> <span class="n">g</span> <span class="mi">0</span> <span class="n">dest</span>
+</code></pre></div></div>
+
+<p>That’s neat, but now we only have a typeclass, we need to actually
+instantiate it.  Indeed, <code class="highlighter-rouge">Comp</code> can be made an instance of <code class="highlighter-rouge">FracComp</code>.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">instance</span> <span class="kt">FracComp</span> <span class="kt">Comp</span> <span class="kr">where</span>
+  <span class="n">addi</span> <span class="n">x</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">primeForVar</span> <span class="n">x</span> <span class="o">$&gt;</span> <span class="kt">[]</span>
+  <span class="n">addi</span> <span class="n">x</span> <span class="n">y</span> <span class="o">=</span> <span class="kr">do</span>
+    <span class="n">g</span> <span class="o">&lt;-</span> <span class="p">(</span><span class="o">^</span> <span class="n">abs</span> <span class="n">y</span><span class="p">)</span> <span class="o">&lt;$&gt;</span> <span class="n">primeForVar</span> <span class="n">x</span>
+    <span class="n">f</span> <span class="o">&lt;-</span>
+      <span class="kr">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="kr">then</span> <span class="p">(</span><span class="o">%</span><span class="p">)</span> <span class="o">&lt;$&gt;</span> <span class="n">gets</span> <span class="n">nextInstPrime</span> <span class="o">&lt;*&gt;</span> <span class="p">((</span><span class="o">*</span> <span class="n">g</span><span class="p">)</span> <span class="o">&lt;$&gt;</span> <span class="n">gets</span> <span class="n">currInstPrime</span><span class="p">)</span>
+        <span class="kr">else</span> <span class="p">(</span><span class="o">%</span><span class="p">)</span> <span class="o">&lt;$&gt;</span> <span class="p">((</span><span class="o">*</span> <span class="n">g</span><span class="p">)</span> <span class="o">&lt;$&gt;</span> <span class="n">gets</span> <span class="n">nextInstPrime</span><span class="p">)</span> <span class="o">&lt;*&gt;</span> <span class="n">gets</span> <span class="n">currInstPrime</span>
+    <span class="n">advance</span>
+    <span class="n">return</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+  <span class="n">gensym</span> <span class="o">=</span> <span class="n">newsym</span>
+<span class="n">newsym</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">n</span> <span class="o">&lt;-</span> <span class="n">gets</span> <span class="n">gensymCount</span>
+  <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">gensymCount</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">})</span>
+  <span class="n">return</span> <span class="p">(</span><span class="sc">'t'</span> <span class="o">:</span> <span class="n">show</span> <span class="n">n</span><span class="p">)</span>
+</code></pre></div></div>
+<p>There’s a little bit of a hiccup when <code class="highlighter-rouge">y</code> is negative, because raising
+to a negative exponent raises an error.  Otherwise, the code is
+remarkably close to Lisp.</p>
+
+<p>Now we need to actually assemble a program.  <code class="highlighter-rouge">assemble</code> initializes
+the state to the initial state.</p>
+
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defun</span> <span class="nv">assemble</span> <span class="p">(</span><span class="nv">insts</span><span class="p">)</span>
+  <span class="s">"Compile the given Lisptran program into Fractran. 
+   Returns two values. The first is the Fractran program 
+   and the second is the alphabet of the program."</span>
+  <span class="p">(</span><span class="k">let*</span> <span class="p">((</span><span class="vg">*cur-prime*</span> <span class="mi">2</span><span class="p">)</span>
+         <span class="p">(</span><span class="vg">*cur-inst-prime*</span> <span class="p">(</span><span class="nv">new-prime</span><span class="p">))</span>
+         <span class="p">(</span><span class="vg">*next-inst-prime*</span> <span class="p">(</span><span class="nv">new-prime</span><span class="p">))</span>
+         <span class="p">(</span><span class="vg">*lisptran-labels*</span> <span class="p">(</span><span class="nb">make-hash-table</span><span class="p">))</span>
+         <span class="p">(</span><span class="vg">*lisptran-vars*</span> <span class="p">(</span><span class="nb">make-hash-table</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">values</span> <span class="p">(</span><span class="nv">assemble-helper</span> <span class="nv">insts</span><span class="p">)</span>
+            <span class="p">(</span><span class="nv">alphabet</span> <span class="vg">*lisptran-vars*</span><span class="p">))))</span>
+</code></pre></div></div>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">initState</span> <span class="o">=</span>
+  <span class="kr">let</span> <span class="p">(</span><span class="n">c</span><span class="o">:</span><span class="n">n</span><span class="o">:</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">primes</span>
+   <span class="kr">in</span> <span class="p">(</span><span class="kt">CompState</span>
+         <span class="p">{</span> <span class="n">currInstPrime</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">unPrime</span> <span class="n">c</span>
+         <span class="p">,</span> <span class="n">nextInstPrime</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">unPrime</span> <span class="n">n</span>
+         <span class="p">,</span> <span class="n">primes</span> <span class="o">=</span> <span class="n">p</span>
+         <span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">mempty</span>
+         <span class="p">,</span> <span class="n">vars</span> <span class="o">=</span> <span class="n">mempty</span>
+         <span class="p">,</span> <span class="n">gensymCount</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="p">})</span>
+<span class="n">run</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&amp;</span> <span class="n">runComp</span> <span class="o">&amp;</span> <span class="n">runExceptT</span> <span class="o">&amp;</span> <span class="n">flip</span> <span class="n">evalState</span> <span class="n">initState</span>
+</code></pre></div></div>
+
+<p>Now, we want run the assembler. Something like this;</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; [addi "x" 3] :: FracComp repr =&gt; [repr [Rational]]
+λ&gt; assemble [addi "x" 3] :: FracComp f =&gt; f [Rational]
+</code></pre></div></div>
+
+<p>So, <code class="highlighter-rouge">assemble</code> should have the following type:</p>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">assemble</span> <span class="o">::</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]]</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+</code></pre></div></div>
+<p>We can calculate it as follows;</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; :t [addi "x" 3]
+[addi "x" 3] :: FracComp repr =&gt; [repr [Rational]]
+λ&gt; :t sequence [addi "x" 3]
+sequence [addi "x" 3] :: FracComp m =&gt; m [[Rational]]
+λ&gt; :t concat &lt;$&gt; sequence [addi "x" 3]
+concat &lt;$&gt; sequence [addi "x" 3] :: FracComp f =&gt; f [Rational]
+</code></pre></div></div>
+<p>And for kicks, we can generalize <code class="highlighter-rouge">concat</code> to <code class="highlighter-rouge">join</code>, yielding our final
+result.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">assemble</span> <span class="o">::</span> <span class="p">(</span><span class="kt">Traversable</span> <span class="n">m</span><span class="p">,</span> <span class="kt">Monad</span> <span class="n">m</span><span class="p">,</span> <span class="kt">Monad</span> <span class="n">f</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">m</span> <span class="p">(</span><span class="n">f</span> <span class="p">(</span><span class="n">m</span> <span class="n">a</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">f</span> <span class="p">(</span><span class="n">m</span> <span class="n">a</span><span class="p">)</span>
+<span class="n">assemble</span> <span class="n">l</span> <span class="o">=</span> <span class="n">join</span> <span class="o">&lt;$&gt;</span> <span class="n">sequence</span> <span class="n">l</span>
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; run (assemble [addi "x" 3])
+Right [375 % 2]
+</code></pre></div></div>
+<p>The genius of the tagless final approach is that it lets us define new
+data <em>variants</em>, in this case, new modular pieces of FRACTRAN code.</p>
+
+<p>Some examples;</p>
+<div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nv">deftran</span> <span class="nv">while</span> <span class="p">(</span><span class="nv">test</span> <span class="k">&amp;rest</span> <span class="nv">body</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">gstart</span> <span class="p">(</span><span class="nb">gensym</span><span class="p">))</span>
+        <span class="p">(</span><span class="nv">gend</span> <span class="p">(</span><span class="nb">gensym</span><span class="p">)))</span>
+    <span class="o">`</span><span class="p">((</span><span class="nv">goto</span> <span class="o">,</span><span class="nv">gend</span><span class="p">)</span>
+      <span class="o">,</span><span class="nv">gstart</span>
+      <span class="o">,@</span><span class="nv">body</span>
+      <span class="o">,</span><span class="nv">gend</span>
+      <span class="p">(</span><span class="o">,@</span><span class="nv">test</span> <span class="o">,</span><span class="nv">gstart</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nv">deftran</span> <span class="nv">zero</span> <span class="p">(</span><span class="nv">var</span><span class="p">)</span>
+  <span class="o">`</span><span class="p">((</span><span class="nv">while</span> <span class="p">(</span><span class="nv">&gt;=i</span> <span class="o">,</span><span class="nv">var</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="p">(</span><span class="nv">subi</span> <span class="o">,</span><span class="nv">var</span> <span class="mi">1</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nv">deftran</span> <span class="nv">move</span> <span class="p">(</span><span class="nv">to</span> <span class="nv">from</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let</span> <span class="p">((</span><span class="nv">gtemp</span> <span class="p">(</span><span class="nv">gevnsym</span><span class="p">)))</span>
+    <span class="o">`</span><span class="p">((</span><span class="nv">zero</span> <span class="o">,</span><span class="nv">to</span><span class="p">)</span>
+      <span class="p">(</span><span class="nv">while</span> <span class="p">(</span><span class="nv">&gt;=i</span> <span class="o">,</span><span class="nv">from</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">addi</span> <span class="o">,</span><span class="nv">gtemp</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">subi</span> <span class="o">,</span><span class="nv">from</span> <span class="mi">1</span><span class="p">))</span>
+      <span class="p">(</span><span class="nv">while</span> <span class="p">(</span><span class="nv">&gt;=i</span> <span class="o">,</span><span class="nv">gtemp</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">addi</span> <span class="o">,</span><span class="nv">to</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">addi</span> <span class="o">,</span><span class="nv">from</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="nv">subi</span> <span class="o">,</span><span class="nv">gtemp</span> <span class="mi">1</span><span class="p">)))))</span>
+</code></pre></div></div>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">while</span> <span class="n">test</span> <span class="n">body</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">gstart</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
+  <span class="n">gend</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
+  <span class="n">assemble</span>
+    <span class="p">(</span><span class="n">concat</span> <span class="p">[[</span><span class="n">goto</span> <span class="n">gend</span><span class="p">,</span>
+              <span class="n">label</span> <span class="n">gstart</span><span class="p">],</span>
+              <span class="n">body</span><span class="p">,</span>
+              <span class="p">[</span><span class="n">label</span> <span class="n">gend</span><span class="p">,</span> <span class="n">test</span> <span class="n">gstart</span><span class="p">]])</span>
+
+<span class="n">zero</span> <span class="n">var</span> <span class="o">=</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">var</span> <span class="mi">1</span><span class="p">)</span> <span class="p">[</span><span class="n">subi</span> <span class="n">var</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">move</span> <span class="n">to</span> <span class="n">from</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">gtemp</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
+  <span class="n">assemble</span>
+    <span class="p">[</span> <span class="n">zero</span> <span class="n">to</span>
+    <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">from</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">addi</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">,</span> <span class="n">subi</span> <span class="n">from</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">addi</span> <span class="n">to</span> <span class="mi">1</span><span class="p">,</span> <span class="n">addi</span> <span class="n">from</span> <span class="mi">1</span><span class="p">,</span> <span class="n">subi</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">]</span>
+
+<span class="n">adds</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span> <span class="kr">do</span>
+  <span class="n">gtemp</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
+  <span class="n">assemble</span>
+    <span class="p">[</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">b</span> <span class="mi">1</span><span class="p">)</span> <span class="p">[</span><span class="n">addi</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">,</span> <span class="n">subi</span> <span class="n">b</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">)</span> <span class="p">[</span><span class="n">addi</span> <span class="n">a</span> <span class="mi">1</span><span class="p">,</span> <span class="n">addi</span> <span class="n">b</span> <span class="mi">1</span><span class="p">,</span> <span class="n">subi</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">]</span>
+</code></pre></div></div>
+<p>Because this is a deep embedding, we can write Haskell functions that
+generate FRACTRAN programs.  For instance, a function that takes an
+integer <code class="highlighter-rouge">n</code> and returns a FRACTRAN program that computes the sum of
+the numbers from 1 to <code class="highlighter-rouge">n</code> inclusive.</p>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sumTo</span> <span class="o">::</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]]</span>
+<span class="n">sumTo</span> <span class="n">n</span> <span class="o">=</span> <span class="p">[</span> <span class="n">addi</span> <span class="s">"c"</span> <span class="mi">0</span>
+          <span class="p">,</span> <span class="n">addi</span> <span class="s">"n"</span> <span class="n">n</span>
+          <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="s">"n"</span> <span class="mi">0</span><span class="p">)</span>
+              <span class="p">[</span><span class="n">adds</span> <span class="s">"c"</span> <span class="s">"n"</span><span class="p">,</span> <span class="n">subi</span> <span class="s">"n"</span> <span class="mi">1</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>Porting code is not easy.  There are multiple facets to consider, for
+instance, what if the target language lacked a feature of the source
+language?  Keeping it idiomatic across paradigms adds additional
+challenges.  In this translation, some Lisp functions were omitted
+entirely, either because they were not needed or did not fit with the
+model (for instance, the <code class="highlighter-rouge">assemble-helper</code> function).  Nevertheless,
+code translation is a (in my opinion) good way to deepen understanding
+and practice.</p>
+
+<p>Get the full code <a href="https://github.com/siraben/hasktran">here</a>.</p>
+
+  </div><a class="u-url" href="/2020/02/25/translating_cl.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">siraben&#39;s musings</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">siraben&#39;s musings</li><li><a class="u-email" href="mailto:(my username) (at) disroot.org">(my username) (at) disroot.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/siraben"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">siraben</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Hello! This is my website. You can find my contact information, GitHub contributions and other cool stuff here. Stay tuned for updates!</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
