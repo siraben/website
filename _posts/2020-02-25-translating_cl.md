@@ -166,9 +166,9 @@ other macros, such as `subi` calling `addi`, and when we add a new
 instruction, we have to go through the entire codebase to handle the
 extra case, this is the infamous _expression problem_.  Fortunately,
 much work has been carried out in attempting to resolve this, with one
-promising approach being the _tagless final approach_.  That is can
-express `addi`, `subi` and more using a typeclass, rather than a data
-declaration?  The answer is a resounding yes.
+promising approach being the _tagless final approach_.  That is, can
+express we `addi`, `subi` and more using a typeclass, rather than a
+data declaration?  The answer is a resounding yes.
 
 # A macro is a tagless final encoding!
 ```haskell

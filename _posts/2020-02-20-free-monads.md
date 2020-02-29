@@ -268,8 +268,8 @@ meaning.  This is given by the `efRunCalc` function.
 If the command is `Pure x`, just return `x` along with the state.
 ```haskell
 efRunCalc :: Functor r => Mem
-                        -> Term (Incr :+: (Recall :+: r)) a
-                        -> Term r (a, Mem)
+                       -> Term (Incr :+: (Recall :+: r)) a
+                       -> Term r (a, Mem)
 efRunCalc s (Pure x) = return (x, s)
 ```
 
@@ -314,7 +314,7 @@ transformers needed.  We can combine effects freely.  When we
 interpret effects, we handle them one by one.
 
 ```
-λ> tick' & efRunCalc (Mem 4) & efRun
+λ> tick & efRunCalc (Mem 4) & efRun
 (4,Mem 5)
 ```
 
