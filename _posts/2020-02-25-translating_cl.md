@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Common Lisp to Haskell, a case study
+title: Translating Common Lisp to Haskell, a case study
 date: 2020-02-25 18:46 -0600
 ---
 Lisp programs have their own particular style, often involving mutable
@@ -20,7 +20,7 @@ style.
 
 Get the full code [here](https://github.com/siraben/hasktran).
 
-# The Common Lisp program: an assembler for FRACTRAN
+## The Common Lisp program: an assembler for FRACTRAN
 A couple of years ago, malisper wrote a [blog
 post](https://malisper.me/building-fizzbuzz-fractran-bottom/) on
 writing an assembler for the esoteric programming language
@@ -115,7 +115,7 @@ primeForLabel label = do
       modify (\s -> s {labels = M.insert label p labels})
       return p
 ```
-# An awkward step
+## An awkward step
 Now we run into a little bit of an issue;
 ```lisp
 (defmacro deftran (name args &body body)
@@ -170,7 +170,7 @@ promising approach being the _tagless final approach_.  That is, can
 express we `addi`, `subi` and more using a typeclass, rather than a
 data declaration?  The answer is a resounding yes.
 
-# A macro is a tagless final encoding!
+## A macro is a tagless final encoding!
 ```haskell
 class MonadState repr => FracComp repr where
   lit :: Integer -> repr [Rational]
@@ -357,16 +357,111 @@ sumTo n = [ addi "c" 0
           , while (jge "n" 0)
               [adds "c" "n", subi "n" 1]]
 ```
+Now let's see the assembler in action!
+```
+λ> runAssembler (sumTo 10)
 
+Right [847425747 % 2,13 % 3,19 % 13,11 % 3,11 % 29,31 % 11,41 % 31,
+23 % 11,23 % 47,2279 % 23,59 % 301,59 % 41,67 % 413,329 % 67,61 % 59,
+73 % 61,83 % 73,71 % 61,71 % 97,445 % 71,707 % 89,103 % 5353,
+103 % 83,109 % 5459,5141 % 109,107 % 103,113 % 749,113 % 19,
+131 % 113,29 % 131,127 % 113]
+```
+## Going beyond: a pretty printer
+We're done.  Let's see what directions we can take our newly
+translated FRACTRAN assembler.  Since we used the tagless final
+approach, we can do cool things such as interpreting the values under
+a different _semantic domain_.  In other words, a fully assembled and
+final (pun intended) program `FracComp f => f [Rational]` has a
+concrete type that depends on the appropriate choice of `f`, which in
+turn depends on the call site! In particular, we can let `f` be the
+newtype `S`, defined as
 
-# Conclusion
-Porting code is not easy.  There are multiple facets to consider, for
-instance, what if the target language lacked a feature of the source
-language?  Keeping it idiomatic across paradigms adds additional
-challenges.  In this translation, some Lisp functions were omitted
-entirely, either because they were not needed or did not fit with the
-model (for instance, the `assemble-helper` function).  Nevertheless,
-code translation is a (in my opinion) good way to deepen understanding
-and practice.
+```haskell
+newtype S a = S { unS :: StateT Int (Writer [Doc]) a 
+          deriving (Functor, Applicative, Monad,
+                    MonadWriter [Doc], MonadState Int)
+```
+
+And write the `FracComp` instance for `S`.
+
+```haskell
+instance FracComp S where
+  lit i = tell [text (show i)] $> []
+  label l = tell ["label" <+> text l] $> []
+  addi l x = tell ["addi"  <+> text l <+> text (show x)] $> []
+  jge l x dest = tell ["jge" <+> text l <+> text (show x) <+> text dest] $> []
+  gensym = gets (('g' :) . show) <* modify (+ 1)
+
+pretty :: Traversable t => t (S a) -> Doc
+pretty x = vcat (execWriter (evalStateT (sequence (view <$> x)) 0))
+```
+
+```
+λ> pretty (sumTo 10)
+addi n 10
+jge g2 0 g1
+label g0
+jge g6 0 g5
+label g4
+addi g3 1
+addi n -1
+label g5
+jge n 1 g4
+jge g9 0 g8
+label g7
+addi c 1
+addi n 1
+addi g3 -1
+label g8
+jge g3 1 g7
+addi n -1
+label g1
+jge n 0 g0
+```
+
+But we have just defined the pretty printers for the basic opcodes,
+let's also write specialized printers for the high-level constructs
+like `while`.  Once again, tagless final helps us achieve this.
+
+```haskell
+instance FracComp S where
+  lit i = tell [text (show i)] $> []
+  label l = tell ["label" <+> text l] $> []
+  addi l x = tell [text l <+> "+=" <+> text (show x)] $> []
+  jge l x dest = tell [text l <+> ">=" <+> (text (show x) <+> text dest)] $> []
+  gensym = gets (('g' :) . show) <* modify (+ 1)
+  --------------------------------------------------------------
+  jle l x dest = tell [text l <+> "<=" <+> (text (show x) <+> text dest)] $> []
+  adds l x = tell [text l <+> "+=" <+> text x] $> []
+  subi l x = tell [text l <+> "-=" <+> text (show x)] $> []
+  goto l = tell ["goto" <+> text l] $> []
+  while test body = do
+    censor ((\x -> "while " <> x <> "{") <$>) (test "")
+    censor (nest 2 <$>) (sequence body)
+    tell ["}"]
+    return []
+```
+As a result, we can now output FRACTRAN programs in a language
+resembling C.
+```
+λ> pretty (sumTo 10)
+c += 0
+n += 10
+while n >= 0 {
+  c += n
+  n -= 1
+}
+```
+## Conclusion
+Porting code can be challenging, as there are multiple facets to
+consider, for instance, what if the target language lacked a feature
+of the source language?  Keeping it idiomatic across paradigms adds
+additional challenges.  In this translation, some Lisp functions were
+omitted entirely, either because they were not needed or did not fit
+with the model (for instance, the `assemble-helper` function).
+Nevertheless, code translation is a (in my opinion) good way to deepen
+understanding and practice.
+
 
 Get the full code [here](https://github.com/siraben/hasktran).
