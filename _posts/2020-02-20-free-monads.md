@@ -2,6 +2,7 @@
 layout: post
 title: Free Monads from Scratch
 date: 2020-02-20 17:49 -0600
+tags: [haskell,math]
 ---
 Haskellers love monads, and there's a good reason why.  Without
 monads, Haskell wouldn't have much of an I/O system at all, as Simon

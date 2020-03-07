@@ -15,7 +15,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-02-25T18:46:00-06:00" />
 <script type="application/ld+json">
-{"description":"Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell.","headline":"Translating Common Lisp to Haskell, a case study","dateModified":"2020-02-25T18:46:00-06:00","datePublished":"2020-02-25T18:46:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/25/translating_cl.html"},"url":"siraben.github.io/2020/02/25/translating_cl.html","@context":"https://schema.org"}</script>
+{"headline":"Translating Common Lisp to Haskell, a case study","dateModified":"2020-02-25T18:46:00-06:00","datePublished":"2020-02-25T18:46:00-06:00","description":"Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell.","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/25/translating_cl.html"},"url":"siraben.github.io/2020/02/25/translating_cl.html","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="siraben.github.io/feed.xml" title="siraben's musings" /></head>
 <body><header class="site-header" role="banner">
@@ -393,7 +393,7 @@ concrete type that depends on the appropriate choice of <code class="highlighter
 turn depends on the call site! In particular, we can let <code class="highlighter-rouge">f</code> be the
 newtype <code class="highlighter-rouge">S</code>, defined as</p>
 
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">newtype</span> <span class="kt">S</span> <span class="n">a</span> <span class="o">=</span> <span class="kt">S</span> <span class="p">{</span> <span class="n">unS</span> <span class="o">::</span> <span class="kt">StateT</span> <span class="kt">Int</span> <span class="p">(</span><span class="kt">Writer</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">])</span> <span class="n">a</span> 
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">newtype</span> <span class="kt">S</span> <span class="n">a</span> <span class="o">=</span> <span class="kt">S</span> <span class="p">{</span> <span class="n">unS</span> <span class="o">::</span> <span class="kt">StateT</span> <span class="kt">Int</span> <span class="p">(</span><span class="kt">Writer</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">])</span> <span class="n">a</span> <span class="p">}</span>
           <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Functor</span><span class="p">,</span> <span class="kt">Applicative</span><span class="p">,</span> <span class="kt">Monad</span><span class="p">,</span>
                     <span class="kt">MonadWriter</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">],</span> <span class="kt">MonadState</span> <span class="kt">Int</span><span class="p">)</span>
 </code></pre></div></div>
@@ -497,7 +497,7 @@ understanding and practice.</p>
 </div>
 
       <div class="footer-col footer-col-3">
-        <p>Hello! This is my website. You can find my contact information, GitHub contributions and other cool stuff here. Stay tuned for updates!</p>
+        <p>Musings of a CS nerd.</p>
       </div>
     </div>
 

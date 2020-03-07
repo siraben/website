@@ -16,12 +16,10 @@
 title: siraben's musings
 email: (my username) (at) disroot.org
 description: >- # this means to ignore newlines until "baseurl:"
-  Hello! This is my website. You can find my contact information,
-  GitHub contributions and other cool stuff here. Stay tuned for
-  updates!
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "siraben.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  siraben
+  Musings of a CS nerd.
+baseurl: ""
+url: "siraben.github.io"
+github_username: siraben
 
 # Build settings
 markdown: kramdown 

@@ -2,6 +2,7 @@
 layout: post
 title: Translating Common Lisp to Haskell, a case study
 date: 2020-02-25 18:46 -0600
+tags: [haskell,common-lisp]
 ---
 Lisp programs have their own particular style, often involving mutable
 state, macros, meta-programming and more, which is to be expected of
@@ -378,7 +379,7 @@ turn depends on the call site! In particular, we can let `f` be the
 newtype `S`, defined as
 
 ```haskell
-newtype S a = S { unS :: StateT Int (Writer [Doc]) a 
+newtype S a = S { unS :: StateT Int (Writer [Doc]) a }
           deriving (Functor, Applicative, Monad,
                     MonadWriter [Doc], MonadState Int)
 ```

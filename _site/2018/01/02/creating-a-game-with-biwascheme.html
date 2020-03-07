@@ -7,15 +7,15 @@
 <meta name="generator" content="Jekyll v4.0.0" />
 <meta property="og:title" content="Creating a game with Biwascheme" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work." />
-<meta property="og:description" content="If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work." />
+<meta name="description" content="If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work. It covers everything from recursion, higher-order functions, the functional, symbolic, generic, object-oriented (read: message-oriented), meta programming paradigms, thanks to Lisp, and even builds a Prolog-like language, interpreter and compiler towards the end of the book!" />
+<meta property="og:description" content="If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work. It covers everything from recursion, higher-order functions, the functional, symbolic, generic, object-oriented (read: message-oriented), meta programming paradigms, thanks to Lisp, and even builds a Prolog-like language, interpreter and compiler towards the end of the book!" />
 <link rel="canonical" href="siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html" />
 <meta property="og:url" content="siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html" />
 <meta property="og:site_name" content="siraben’s musings" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2018-01-02T00:00:00-06:00" />
 <script type="application/ld+json">
-{"description":"If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work.","headline":"Creating a game with Biwascheme","dateModified":"2018-01-02T00:00:00-06:00","datePublished":"2018-01-02T00:00:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html"},"url":"siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html","@context":"https://schema.org"}</script>
+{"headline":"Creating a game with Biwascheme","dateModified":"2018-01-02T00:00:00-06:00","datePublished":"2018-01-02T00:00:00-06:00","description":"If you don’t know about MIT’s SICP course (available on OpenCourseWare), you should. Even though it’s intended for undergraduates with little or no experience to programming, this isn’t your typical computer science course. It uses MIT/GNU Scheme, a dialect of Lisp still around today, and even though the lectures are from 1986 pratically all the code examples still work. It covers everything from recursion, higher-order functions, the functional, symbolic, generic, object-oriented (read: message-oriented), meta programming paradigms, thanks to Lisp, and even builds a Prolog-like language, interpreter and compiler towards the end of the book!","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html"},"url":"siraben.github.io/2018/01/02/creating-a-game-with-biwascheme.html","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="siraben.github.io/feed.xml" title="siraben's musings" /></head>
 <body><header class="site-header" role="banner">
@@ -51,7 +51,11 @@ you should. Even though it’s intended for undergraduates with little
 or no experience to programming, this isn’t your typical computer
 science course. It uses MIT/GNU Scheme, a dialect of Lisp still around
 today, and even though the lectures are from 1986 pratically all the
-code examples still work.</p>
+code examples still work.  It covers everything from recursion,
+higher-order functions, the functional, symbolic, generic,
+object-oriented (read: message-oriented), meta programming paradigms,
+thanks to Lisp, and even builds a Prolog-like language, interpreter
+and compiler towards the end of the book!</p>
 
 <p>I read about the <a href="www.biwascheme.org">Biwascheme</a> Scheme interpreter
 in JavaScript and was immediately hooked. Better yet, Biwascheme
@@ -60,12 +64,11 @@ offers interoperability with JS, allowing you invoke functions such as
 buttons and text.</p>
 
 <p>Over the course of an even or so I created a game which I dub <em>Ben’s
-Brownie Brewery</em>, the whole thing is written in Biwascheme, and was
-heavily inspired by Cookie Clicker. It’s released under the GNU GPLv3
-license and you can play it
-<strong><a href="https://siraben.github.io/brownies/">here</a></strong>. It’s <em>very</em> alpha and
-still contains a couple of bugs, nevertheless, it’s perfectly
-playable.</p>
+Brownie Brewery</em>, the whole thing is written in Biwascheme, and is
+essentially a stripped down version of cookie clicker. It’s released
+under the GNU GPLv3 license and you can play it
+<a href="https://siraben.github.io/brownies/">here</a>. Just to show, as a proof
+of concept, that Scheme could be used on the web for dynamic content.</p>
 
   </div><a class="u-url" href="/2018/01/02/creating-a-game-with-biwascheme.html" hidden></a>
 </article>
@@ -88,7 +91,7 @@ playable.</p>
 </div>
 
       <div class="footer-col footer-col-3">
-        <p>Hello! This is my website. You can find my contact information, GitHub contributions and other cool stuff here. Stay tuned for updates!</p>
+        <p>Musings of a CS nerd.</p>
       </div>
     </div>
 
