@@ -37,6 +37,7 @@ followed by its translated Haskell variant, when possible.
 (defparameter *lisptran-vars* nil)
 (defparameter *next-new-prime* nil)
 ```
+
 Unsurprisingly, this global state is encapsulated with the state
 monad.  `ExceptT` appears too because we want to be able to throw an
 error when a label is not found in the map.  We're also using the
@@ -99,6 +100,7 @@ advance = do
 
 `prime-for-label` looks up a label and returns its value if found, and
 inserts it otherwise. `prime-for-var` is defined similarly.
+
 ```lisp
 (defun prime-for-label (label)
   (or (gethash label *lisptran-labels*)
@@ -116,8 +118,10 @@ primeForLabel label = do
       modify (\s -> s {labels = M.insert label p labels})
       return p
 ```
+
 ## An awkward step
 Now we run into a little bit of an issue;
+
 ```lisp
 (defmacro deftran (name args &body body)
   "Define a Lisptran macro."
@@ -148,11 +152,13 @@ code and see the larger structures at play, in this case, how the
                  (/ *next-inst-prime* *cur-inst-prime*)))
     (advance)))
 ```
+
 It would seem that we are stuck.  We could generate lists of
 `Rationals`, but the use of `advance` forces us to use the State
 monad.  Furthermore, in `subi`, it calls `addi`!
 
 One approach would be to express the instructions as a data type;
+
 ```haskell
 type Var = String
 type Label = String
@@ -196,7 +202,7 @@ effects, for instance, `gensym` in `goto`.
 (deftran goto (label) `((>=i ,(gensym) 0 ,label)))
 ```
 ```haskell
-goto :: String -> repr [Rational]
+goto :: FracComp repr => String -> repr [Rational]
 goto dest = do
   g <- gensym
   jge g 0 dest
@@ -222,6 +228,7 @@ newsym = do
   modify (\s -> s {gensymCount = n + 1})
   return ('t' : show n)
 ```
+
 There's a little bit of a hiccup when `y` is negative, because raising
 to a negative exponent raises an error.  Otherwise, the code is
 remarkably close to Lisp.
@@ -242,7 +249,6 @@ the state to the initial state.
     (values (assemble-helper insts)
             (alphabet *lisptran-vars*))))
 ```
-
 ```haskell
 initState =
   let (c:n:p) = P.primes
@@ -257,7 +263,7 @@ initState =
 run a = a & runComp & runExceptT & flip evalState initState
 ```
 
-Now, we want run the assembler. Something like this;
+Now, we want to run the assembler. Something like this;
 
 ```
 λ> [addi "x" 3] :: FracComp repr => [repr [Rational]]
@@ -269,14 +275,16 @@ So, `assemble` should have the following type:
 assemble :: FracComp repr => [repr [Rational]] -> repr [Rational]
 ```
 We can calculate it as follows;
+
 ```
 λ> :t [addi "x" 3]
-[addi "x" 3] :: FracComp repr => [repr [Rational]]
+it :: FracComp repr => [repr [Rational]]
 λ> :t sequence [addi "x" 3]
-sequence [addi "x" 3] :: FracComp m => m [[Rational]]
+it :: FracComp m => m [[Rational]]
 λ> :t concat <$> sequence [addi "x" 3]
-concat <$> sequence [addi "x" 3] :: FracComp f => f [Rational]
+it :: FracComp f => f [Rational]
 ```
+
 And for kicks, we can generalize `concat` to `join`, yielding our final
 result.
 
@@ -288,6 +296,7 @@ assemble l = join <$> sequence l
 λ> run (assemble [addi "x" 3])
 Right [375 % 2]
 ```
+
 The genius of the tagless final approach is that it lets us define new
 data _variants_, in this case, new modular pieces of FRACTRAN code.
 
@@ -317,7 +326,6 @@ Some examples;
         (addi ,from 1)
         (subi ,gtemp 1)))))
 ```
-
 ```haskell
 while test body = do
   gstart <- gensym
@@ -347,10 +355,12 @@ adds a b = do
     , while (jge gtemp 1) [addi a 1, addi b 1, subi gtemp 1]
     ]
 ```
+
 Because this is a deep embedding, we can write Haskell functions that
 generate FRACTRAN programs.  For instance, a function that takes an
 integer `n` and returns a FRACTRAN program that computes the sum of
 the numbers from 1 to `n` inclusive.
+
 ```haskell
 sumTo :: FracComp repr => Integer -> [repr [Rational]]
 sumTo n = [ addi "c" 0
@@ -358,7 +368,9 @@ sumTo n = [ addi "c" 0
           , while (jge "n" 0)
               [adds "c" "n", subi "n" 1]]
 ```
+
 Now let's see the assembler in action!
+
 ```
 λ> runAssembler (sumTo 10)
 
@@ -395,7 +407,25 @@ instance FracComp S where
   gensym = gets (('g' :) . show) <* modify (+ 1)
 
 pretty :: Traversable t => t (S a) -> Doc
-pretty x = vcat (execWriter (evalStateT (sequence (view <$> x)) 0))
+pretty x = x
+         & (unS <$>)
+         & sequence
+         & (`evalStateT` 0)
+         & execWriter
+         & vcat
+```
+
+`pretty` works by unwrapping the `t (S a)` to a stateful writer, then
+handling the state and writing.
+
+```haskell
+-- Traversable t
+pretty x = x                :: t (S a)
+         & unS <$>          :: t (StateT Int (Writer [Doc]) a)
+         & sequence         :: StateT Int (Writer [Doc]) (t a)
+         & (`evalStateT` 0) :: Writer [Doc] (t a)
+         & execWriter       :: [Doc]
+         & vcat             :: Doc
 ```
 
 ```

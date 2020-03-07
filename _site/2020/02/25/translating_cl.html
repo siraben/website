@@ -15,7 +15,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-02-25T18:46:00-06:00" />
 <script type="application/ld+json">
-{"headline":"Translating Common Lisp to Haskell, a case study","dateModified":"2020-02-25T18:46:00-06:00","datePublished":"2020-02-25T18:46:00-06:00","description":"Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell.","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/25/translating_cl.html"},"url":"siraben.github.io/2020/02/25/translating_cl.html","@context":"https://schema.org"}</script>
+{"description":"Lisp programs have their own particular style, often involving mutable state, macros, meta-programming and more, which is to be expected of such a flexible language. Haskell, on the other hand, seems to be a different world altogether, encapsulating effects with monads, a strong type system, and occasionally, use of Template Haskell.","headline":"Translating Common Lisp to Haskell, a case study","dateModified":"2020-02-25T18:46:00-06:00","datePublished":"2020-02-25T18:46:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"siraben.github.io/2020/02/25/translating_cl.html"},"url":"siraben.github.io/2020/02/25/translating_cl.html","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="siraben.github.io/feed.xml" title="siraben's musings" /></head>
 <body><header class="site-header" role="banner">
@@ -77,6 +77,7 @@ followed by its translated Haskell variant, when possible.</p>
 <span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*lisptran-vars*</span> <span class="no">nil</span><span class="p">)</span>
 <span class="p">(</span><span class="nb">defparameter</span> <span class="vg">*next-new-prime*</span> <span class="no">nil</span><span class="p">)</span>
 </code></pre></div></div>
+
 <p>Unsurprisingly, this global state is encapsulated with the state
 monad.  <code class="highlighter-rouge">ExceptT</code> appears too because we want to be able to throw an
 error when a label is not found in the map.  We’re also using the
@@ -134,6 +135,7 @@ straightforward.</p>
 
 <p><code class="highlighter-rouge">prime-for-label</code> looks up a label and returns its value if found, and
 inserts it otherwise. <code class="highlighter-rouge">prime-for-var</code> is defined similarly.</p>
+
 <div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defun</span> <span class="nv">prime-for-label</span> <span class="p">(</span><span class="nv">label</span><span class="p">)</span>
   <span class="p">(</span><span class="nb">or</span> <span class="p">(</span><span class="nb">gethash</span> <span class="nv">label</span> <span class="vg">*lisptran-labels*</span><span class="p">)</span>
       <span class="p">(</span><span class="nb">setf</span> <span class="p">(</span><span class="nb">gethash</span> <span class="nv">label</span> <span class="vg">*lisptran-labels*</span><span class="p">)</span>
@@ -149,8 +151,10 @@ inserts it otherwise. <code class="highlighter-rouge">prime-for-var</code> is de
       <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">labels</span> <span class="o">=</span> <span class="kt">M</span><span class="o">.</span><span class="n">insert</span> <span class="n">label</span> <span class="n">p</span> <span class="n">labels</span><span class="p">})</span>
       <span class="n">return</span> <span class="n">p</span>
 </code></pre></div></div>
+
 <h2 id="an-awkward-step">An awkward step</h2>
 <p>Now we run into a little bit of an issue;</p>
+
 <div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nb">defmacro</span> <span class="nv">deftran</span> <span class="p">(</span><span class="nv">name</span> <span class="nv">args</span> <span class="k">&amp;body</span> <span class="nv">body</span><span class="p">)</span>
   <span class="s">"Define a Lisptran macro."</span>
   <span class="p">(</span><span class="nb">setf</span> <span class="p">(</span><span class="nb">gethash</span> <span class="ss">',name</span> <span class="vg">*lisptran-macros*</span><span class="p">)</span>
@@ -179,11 +183,13 @@ code and see the larger structures at play, in this case, how the
                  <span class="p">(</span><span class="nb">/</span> <span class="vg">*next-inst-prime*</span> <span class="vg">*cur-inst-prime*</span><span class="p">)))</span>
     <span class="p">(</span><span class="nv">advance</span><span class="p">)))</span>
 </code></pre></div></div>
+
 <p>It would seem that we are stuck.  We could generate lists of
 <code class="highlighter-rouge">Rationals</code>, but the use of <code class="highlighter-rouge">advance</code> forces us to use the State
 monad.  Furthermore, in <code class="highlighter-rouge">subi</code>, it calls <code class="highlighter-rouge">addi</code>!</p>
 
 <p>One approach would be to express the instructions as a data type;</p>
+
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">type</span> <span class="kt">Var</span> <span class="o">=</span> <span class="kt">String</span>
 <span class="kr">type</span> <span class="kt">Label</span> <span class="o">=</span> <span class="kt">String</span>
 <span class="kr">data</span> <span class="kt">Instr</span> <span class="o">=</span> <span class="kt">Addi</span> <span class="kt">Var</span> <span class="kt">Int</span>
@@ -223,7 +229,7 @@ effects, for instance, <code class="highlighter-rouge">gensym</code> in <code cl
 
 <div class="language-lisp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nv">deftran</span> <span class="nv">goto</span> <span class="p">(</span><span class="nv">label</span><span class="p">)</span> <span class="o">`</span><span class="p">((</span><span class="nv">&gt;=i</span> <span class="o">,</span><span class="p">(</span><span class="nb">gensym</span><span class="p">)</span> <span class="mi">0</span> <span class="o">,</span><span class="nv">label</span><span class="p">)))</span>
 </code></pre></div></div>
-<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">goto</span> <span class="o">::</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">goto</span> <span class="o">::</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="kt">String</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
 <span class="n">goto</span> <span class="n">dest</span> <span class="o">=</span> <span class="kr">do</span>
   <span class="n">g</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
   <span class="n">jge</span> <span class="n">g</span> <span class="mi">0</span> <span class="n">dest</span>
@@ -248,6 +254,7 @@ instantiate it.  Indeed, <code class="highlighter-rouge">Comp</code> can be made
   <span class="n">modify</span> <span class="p">(</span><span class="nf">\</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span> <span class="p">{</span><span class="n">gensymCount</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">})</span>
   <span class="n">return</span> <span class="p">(</span><span class="sc">'t'</span> <span class="o">:</span> <span class="n">show</span> <span class="n">n</span><span class="p">)</span>
 </code></pre></div></div>
+
 <p>There’s a little bit of a hiccup when <code class="highlighter-rouge">y</code> is negative, because raising
 to a negative exponent raises an error.  Otherwise, the code is
 remarkably close to Lisp.</p>
@@ -267,7 +274,6 @@ the state to the initial state.</p>
     <span class="p">(</span><span class="nb">values</span> <span class="p">(</span><span class="nv">assemble-helper</span> <span class="nv">insts</span><span class="p">)</span>
             <span class="p">(</span><span class="nv">alphabet</span> <span class="vg">*lisptran-vars*</span><span class="p">))))</span>
 </code></pre></div></div>
-
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">initState</span> <span class="o">=</span>
   <span class="kr">let</span> <span class="p">(</span><span class="n">c</span><span class="o">:</span><span class="n">n</span><span class="o">:</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">primes</span>
    <span class="kr">in</span> <span class="p">(</span><span class="kt">CompState</span>
@@ -281,7 +287,7 @@ the state to the initial state.</p>
 <span class="n">run</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&amp;</span> <span class="n">runComp</span> <span class="o">&amp;</span> <span class="n">runExceptT</span> <span class="o">&amp;</span> <span class="n">flip</span> <span class="n">evalState</span> <span class="n">initState</span>
 </code></pre></div></div>
 
-<p>Now, we want run the assembler. Something like this;</p>
+<p>Now, we want to run the assembler. Something like this;</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; [addi "x" 3] :: FracComp repr =&gt; [repr [Rational]]
 λ&gt; assemble [addi "x" 3] :: FracComp f =&gt; f [Rational]
@@ -291,13 +297,15 @@ the state to the initial state.</p>
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">assemble</span> <span class="o">::</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]]</span> <span class="o">-&gt;</span> <span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]</span>
 </code></pre></div></div>
 <p>We can calculate it as follows;</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; :t [addi "x" 3]
-[addi "x" 3] :: FracComp repr =&gt; [repr [Rational]]
+it :: FracComp repr =&gt; [repr [Rational]]
 λ&gt; :t sequence [addi "x" 3]
-sequence [addi "x" 3] :: FracComp m =&gt; m [[Rational]]
+it :: FracComp m =&gt; m [[Rational]]
 λ&gt; :t concat &lt;$&gt; sequence [addi "x" 3]
-concat &lt;$&gt; sequence [addi "x" 3] :: FracComp f =&gt; f [Rational]
+it :: FracComp f =&gt; f [Rational]
 </code></pre></div></div>
+
 <p>And for kicks, we can generalize <code class="highlighter-rouge">concat</code> to <code class="highlighter-rouge">join</code>, yielding our final
 result.</p>
 
@@ -307,6 +315,7 @@ result.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; run (assemble [addi "x" 3])
 Right [375 % 2]
 </code></pre></div></div>
+
 <p>The genius of the tagless final approach is that it lets us define new
 data <em>variants</em>, in this case, new modular pieces of FRACTRAN code.</p>
 
@@ -335,7 +344,6 @@ data <em>variants</em>, in this case, new modular pieces of FRACTRAN code.</p>
         <span class="p">(</span><span class="nv">addi</span> <span class="o">,</span><span class="nv">from</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">(</span><span class="nv">subi</span> <span class="o">,</span><span class="nv">gtemp</span> <span class="mi">1</span><span class="p">)))))</span>
 </code></pre></div></div>
-
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">while</span> <span class="n">test</span> <span class="n">body</span> <span class="o">=</span> <span class="kr">do</span>
   <span class="n">gstart</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
   <span class="n">gend</span> <span class="o">&lt;-</span> <span class="n">gensym</span>
@@ -364,17 +372,21 @@ data <em>variants</em>, in this case, new modular pieces of FRACTRAN code.</p>
     <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">)</span> <span class="p">[</span><span class="n">addi</span> <span class="n">a</span> <span class="mi">1</span><span class="p">,</span> <span class="n">addi</span> <span class="n">b</span> <span class="mi">1</span><span class="p">,</span> <span class="n">subi</span> <span class="n">gtemp</span> <span class="mi">1</span><span class="p">]</span>
     <span class="p">]</span>
 </code></pre></div></div>
+
 <p>Because this is a deep embedding, we can write Haskell functions that
 generate FRACTRAN programs.  For instance, a function that takes an
 integer <code class="highlighter-rouge">n</code> and returns a FRACTRAN program that computes the sum of
 the numbers from 1 to <code class="highlighter-rouge">n</code> inclusive.</p>
+
 <div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sumTo</span> <span class="o">::</span> <span class="kt">FracComp</span> <span class="n">repr</span> <span class="o">=&gt;</span> <span class="kt">Integer</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">repr</span> <span class="p">[</span><span class="kt">Rational</span><span class="p">]]</span>
 <span class="n">sumTo</span> <span class="n">n</span> <span class="o">=</span> <span class="p">[</span> <span class="n">addi</span> <span class="s">"c"</span> <span class="mi">0</span>
           <span class="p">,</span> <span class="n">addi</span> <span class="s">"n"</span> <span class="n">n</span>
           <span class="p">,</span> <span class="n">while</span> <span class="p">(</span><span class="n">jge</span> <span class="s">"n"</span> <span class="mi">0</span><span class="p">)</span>
               <span class="p">[</span><span class="n">adds</span> <span class="s">"c"</span> <span class="s">"n"</span><span class="p">,</span> <span class="n">subi</span> <span class="s">"n"</span> <span class="mi">1</span><span class="p">]]</span>
 </code></pre></div></div>
+
 <p>Now let’s see the assembler in action!</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; runAssembler (sumTo 10)
 
 Right [847425747 % 2,13 % 3,19 % 13,11 % 3,11 % 29,31 % 11,41 % 31,
@@ -408,7 +420,24 @@ newtype <code class="highlighter-rouge">S</code>, defined as</p>
   <span class="n">gensym</span> <span class="o">=</span> <span class="n">gets</span> <span class="p">((</span><span class="sc">'g'</span> <span class="o">:</span><span class="p">)</span> <span class="o">.</span> <span class="n">show</span><span class="p">)</span> <span class="o">&lt;*</span> <span class="n">modify</span> <span class="p">(</span><span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="n">pretty</span> <span class="o">::</span> <span class="kt">Traversable</span> <span class="n">t</span> <span class="o">=&gt;</span> <span class="n">t</span> <span class="p">(</span><span class="kt">S</span> <span class="n">a</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Doc</span>
-<span class="n">pretty</span> <span class="n">x</span> <span class="o">=</span> <span class="n">vcat</span> <span class="p">(</span><span class="n">execWriter</span> <span class="p">(</span><span class="n">evalStateT</span> <span class="p">(</span><span class="n">sequence</span> <span class="p">(</span><span class="n">view</span> <span class="o">&lt;$&gt;</span> <span class="n">x</span><span class="p">))</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">pretty</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+         <span class="o">&amp;</span> <span class="p">(</span><span class="n">unS</span> <span class="o">&lt;$&gt;</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="n">sequence</span>
+         <span class="o">&amp;</span> <span class="p">(`</span><span class="n">evalStateT</span><span class="p">`</span> <span class="mi">0</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="n">execWriter</span>
+         <span class="o">&amp;</span> <span class="n">vcat</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">pretty</code> works by unwrapping the <code class="highlighter-rouge">t (S a)</code> to a stateful writer, then
+handling the state and writing.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Traversable t</span>
+<span class="n">pretty</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span>                <span class="o">::</span> <span class="n">t</span> <span class="p">(</span><span class="kt">S</span> <span class="n">a</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="n">unS</span> <span class="o">&lt;$&gt;</span>          <span class="o">::</span> <span class="n">t</span> <span class="p">(</span><span class="kt">StateT</span> <span class="kt">Int</span> <span class="p">(</span><span class="kt">Writer</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">])</span> <span class="n">a</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="n">sequence</span>         <span class="o">::</span> <span class="kt">StateT</span> <span class="kt">Int</span> <span class="p">(</span><span class="kt">Writer</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">])</span> <span class="p">(</span><span class="n">t</span> <span class="n">a</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="p">(`</span><span class="n">evalStateT</span><span class="p">`</span> <span class="mi">0</span><span class="p">)</span> <span class="o">::</span> <span class="kt">Writer</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">]</span> <span class="p">(</span><span class="n">t</span> <span class="n">a</span><span class="p">)</span>
+         <span class="o">&amp;</span> <span class="n">execWriter</span>       <span class="o">::</span> <span class="p">[</span><span class="kt">Doc</span><span class="p">]</span>
+         <span class="o">&amp;</span> <span class="n">vcat</span>             <span class="o">::</span> <span class="kt">Doc</span>
 </code></pre></div></div>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ&gt; pretty (sumTo 10)
