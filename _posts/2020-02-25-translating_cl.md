@@ -260,7 +260,7 @@ initState =
          , vars = mempty
          , gensymCount = 0
          })
-run a = a & runComp & runExceptT & flip evalState initState
+run a = a & runComp & runExceptT & (`evalState` initState)
 ```
 
 Now, we want to run the assembler. Something like this;
