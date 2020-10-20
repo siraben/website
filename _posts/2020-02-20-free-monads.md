@@ -251,15 +251,15 @@ effects.
 ## A stateful calculator
 Let's implement a simple calculator with a single `Int` register.  We
 define the operations of this calculator separately; `Incr` and
-`Recall`.
+`Reader`.
 
 - `Incr i t` increments the state by `i` and returns `t`
-- `Recall f` extracts the state and runs `f` on it
+- `Reader f` extracts the state and runs `f` on it
 - `Mem i` represents the state having value `i`
 
 ```haskell
 data Incr t = Incr Int t deriving (Functor)
-data Recall t = Recall (Int -> t) deriving (Functor)
+data Reader t = Reader (Int -> t) deriving (Functor)
 data Mem = Mem Int deriving (Show)
 ```
 
@@ -269,21 +269,21 @@ meaning.  This is given by the `efRunCalc` function.
 If the command is `Pure x`, just return `x` along with the state.
 ```haskell
 efRunCalc :: Functor r => Mem
-                       -> Term (Incr :+: (Recall :+: r)) a
+                       -> Term (Incr :+: (Reader :+: r)) a
                        -> Term r (a, Mem)
 efRunCalc s (Pure x) = return (x, s)
 ```
 
 If the command is `Incr k r`, modify the state by `k` and continue
 with r.  The slight twist is that we need to pattern match with `Inl`,
-because to extract `Incr` from `(Incr :+: (Recall :+: r))`.  To
-extract `Recall` from `(Incr :+: (Recall :+: r))` we have to perform
+because to extract `Incr` from `(Incr :+: (Reader :+: r))`.  To
+extract `Reader` from `(Incr :+: (Reader :+: r))` we have to perform
 `Inl` followed by `Inr`.  Finally, to handle `r`, we `fmap (efRunCalc
 s)` over `t`.
 
 ```haskell
 efRunCalc (Mem s) (Impure (Inl (Incr k r))) = efRunCalc (Mem (s + k)) r
-efRunCalc (Mem s) (Impure (Inr (Inl (Recall r)))) = efRunCalc (Mem s) (r s)
+efRunCalc (Mem s) (Impure (Inr (Inl (Reader r)))) = efRunCalc (Mem s) (r s)
 efRunCalc s (Impure (Inr (Inr t))) = Impure (efRunCalc s <$> t)
 ```
 
@@ -297,13 +297,13 @@ inject = Impure . inj
 incr :: (Incr :<: f) => Int -> Term f ()
 incr i = inject (Incr i (Pure ()))
 
-recall :: (Recall :<: f) => Term f Int
-recall = inject (Recall Pure)
+recall :: (Reader :<: f) => Term f Int
+recall = inject (Reader Pure)
 ```
 
-Now, we can combine our `Incr` and `Recall` effects in a single monad.
+Now, we can combine our `Incr` and `Reader` effects in a single monad.
 ```haskell
-tick :: (Incr :<: f, Recall :<: f) => Term f Int
+tick :: (Incr :<: f, Reader :<: f) => Term f Int
 tick = do
   y <- recall
   incr 1
@@ -340,7 +340,7 @@ efRunExc (Impure (Inr t)) = Impure (efRunExc <$> t)
 Due to our coproduct construction, `Exc` is separate from the other
 effects. `ticke` uses all the effects we have seen so far.
 ```haskell
-ticke :: (Exc String :<: f, Incr :<: f, Recall :<: f) => Int -> Term f Int
+ticke :: (Exc String :<: f, Incr :<: f, Reader :<: f) => Int -> Term f Int
 ticke n = do y <- recall
              incr 5
              z <- recall
