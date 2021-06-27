@@ -3,7 +3,7 @@ layout: page
 title: About Me
 permalink: /about/
 ---
-Hello! I'm Ben.  I'm currently a first-year studying computer science
+Hello! I'm Ben.  I'm an undergraduate studying computer science
 and mathematics at Vanderbilt University.  I'm interested in
 everything from hardware and assembly programming to functional
 programming and formal verification.
