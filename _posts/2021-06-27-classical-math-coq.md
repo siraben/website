@@ -150,10 +150,10 @@ trivial.
 
 ```coq
 (* New definition of injective *)
-Definition injective {A B} (f : A -> B) := 
+Definition injective {A B} (f : A -> B) :=
   forall a' a'', f a' = f a'' -> a' = a''.
 (* Book's definition *)
-Definition injective' {A B} (f : A -> B) := 
+Definition injective' {A B} (f : A -> B) :=
   forall a' a'', a' <> a'' -> f a' <> f a''.
 
 (* injective generalizes injective' *)
