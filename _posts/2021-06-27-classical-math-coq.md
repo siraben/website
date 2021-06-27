@@ -31,7 +31,7 @@ possible into Coq.  The forward direction is easy.
 
 ```coq
 Definition injective {A B} (f : A -> B) :=
-  forall a' a'', f a' = f a'' -> a' = a''.
+  forall a' a'', a' <> a'' -> f a' <> f a''.
 
 Definition left_inverse {A B} (f : A -> B) g := forall a, g (f a) = a.
 
