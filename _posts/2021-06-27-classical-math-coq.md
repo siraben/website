@@ -81,7 +81,7 @@ Assume we can always tell if `b : B` is in the image of `f` or not.
 Let `M` be a Turing machine.  Define `f : ℕ -> ℕ` where `f(n) = 0` if
 `M` halts in `n` steps, otherwise return `n+1`.  This is obviously
 injective.  So, what would `g(0)` give?  It would return the number of
-steps that it takes for `M` to halt, or the fixed element `M`
+steps that it takes for `M` to halt, or the fixed element if `M`
 diverges, but `M` is an arbitrary Turing machine, so that means we can
 solve the halting problem.  (In fact you can also prove LEM from the
 theorem, see Appendix B).
