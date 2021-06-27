@@ -21,7 +21,7 @@ url: "siraben.github.io"
 github_username: siraben
 
 # Build settings
-markdown: kramdown 
+markdown: kramdown
 theme: minima
 plugins:
   - jekyll-feed
