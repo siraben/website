@@ -6,6 +6,9 @@ tags:
 - coq
 - math
 ---
+
+Coq code for this post available [here](https://gist.github.com/siraben/19b2c77b105f02799ca29c03e7790d6b).
+
 After having gone through most of the first 3 books in [Software
 Foundations](https://softwarefoundations.cis.upenn.edu/), and proving
 various theorems in classical real analysis in Coq, I decided to
@@ -115,7 +118,12 @@ Definition im_dec {A} {B} (f : A -> B) :=
 (* If being in the image of an injective function f is decidable, it
    has a left inverse. *)
 Lemma injective_left_inverse {A B} (s : A) (f : A -> B) :
-  im_dec f -> injective f -> has_left_inverse f.
+  im_dec f -> injective f -> { g | left_inverse f g }.
+Proof.
+  unfold im_dec, injective; intros dec inj.
+  exists (fun b => match dec b with inl (exist _ a _) => a | inr _ => s end).
+  intros a'; destruct (dec (f a')) as [[a Ha] | contra].
+
 ```
 
 With this assumption, we can continue the proof, but then we
@@ -159,7 +167,7 @@ Definition injective' {A B} (f : A -> B) :=
 (* injective generalizes injective' *)
 Theorem injective_injective' : forall {A B} (f : A -> B),
   injective f -> injective' f.
-Proof. unfold injective, injective'. auto. Qed.
+Proof. cbv; auto. Qed.
 ```
 
 With all this done, we can finally prove the backwards direction.  One
@@ -171,7 +179,7 @@ content later.
 Lemma injective_left_inverse {A B} (s : A) (f : A -> B) :
   im_dec f -> injective f -> { g | left_inverse f g }.
 Proof.
-  unfold injective, has_left_inverse, im_dec.
+  unfold injective, left_inverse, im_dec.
   intros dec inj.
   (* It's decidable to check if b is in the image or not *)
   exists (fun b => match dec b with inl (exist _ a _) => a | inr _ => s end).
