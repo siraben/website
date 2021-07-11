@@ -305,9 +305,31 @@ Defined.
 Eval compute in (pred' 1000). (* => 999 *)
 ```
 
-**Exercise (3 stars):** define `double n = n + n` and derive its
-left-inverse in a similar manner.  You'll need to prove that being in
-the image of `double` is decidable and that it's injective.
+**Exercise (4 stars):** define `double n = n + n` and derive its
+left-inverse `halve` in a similar manner.  You'll need to prove that
+being in the image of `double` is decidable (hint: parity) and that
+it's injective, along with some additional lemmas as you see fit.  You
+might want to use the following induction principle to help.  Don't
+forget to make some proofs transparent so that `Eval compute in (halve
+1000).` reduces to `500`!
+
+```coq
+(* Idea: if a property P holds on 0 and 1, and n+2 whenever it holds on n,
+   then it holds for all n. *)
+
+Definition nat_ind2 :
+   forall (P : nat -> Type),
+   P 0 ->
+   P 1 ->
+   (forall n : nat, P n -> P (S (S n))) ->
+   forall n : nat , P n :=
+      fun P => fun P0 => fun P1 => fun PSS =>
+         fix f (n:nat) := match n with
+                            0 => P0
+                          | 1 => P1
+                          | S (S n') => PSS n' (f n')
+                         end.
+```
 
 ## Appendix B: Proving LEM
 
