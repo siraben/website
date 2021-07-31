@@ -370,6 +370,7 @@ For our final example, we generalize the state to an arbitrary type
 ```haskell
 -- Enable the ConstraintKind language extension for this
 data Writer s t = Put s t deriving Functor
+data Reader s t = Get (s -> t) deriving Functor
 type StEff s r = (Reader s :<: r, Writer s :<: r)
 
 efRunSt :: Functor r => State s -> Term (St s r) a -> Term r (a, s)
