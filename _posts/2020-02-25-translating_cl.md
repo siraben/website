@@ -8,7 +8,7 @@ Lisp programs have their own particular style, often involving mutable
 state, macros, meta-programming and more, which is to be expected of
 such a flexible language.  Haskell, on the other hand, seems to be a
 different world altogether, encapsulating effects with monads, a
-strong [type
+static [type
 system](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system),
 and occasionally, use of Template Haskell.
 
