@@ -356,10 +356,10 @@ adds a b = do
     ]
 ```
 
-Because this is a deep embedding, we can write Haskell functions that
-generate FRACTRAN programs.  For instance, a function that takes an
-integer `n` and returns a FRACTRAN program that computes the sum of
-the numbers from 1 to `n` inclusive.
+With the tagless final embedding, we can write Haskell functions that
+generate FRACTRAN programs as easily as we construct values.  For
+instance, a function that takes an integer `n` and returns a FRACTRAN
+program that computes the sum of the numbers from 1 to `n` inclusive.
 
 ```haskell
 sumTo :: FracComp repr => Integer -> [repr [Rational]]
