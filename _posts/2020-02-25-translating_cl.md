@@ -408,7 +408,7 @@ instance FracComp S where
 
 pretty :: Traversable t => t (S a) -> Doc
 pretty x = x
-         & (unS <$>)
+         & fmap unS
          & sequence
          & (`evalStateT` 0)
          & execWriter
@@ -421,7 +421,7 @@ handling the state and writing.
 ```haskell
 -- Traversable t
 pretty x = x                :: t (S a)
-         & unS <$>          :: t (StateT Int (Writer [Doc]) a)
+         & fmap unS         :: t (StateT Int (Writer [Doc]) a)
          & sequence         :: StateT Int (Writer [Doc]) (t a)
          & (`evalStateT` 0) :: Writer [Doc] (t a)
          & execWriter       :: [Doc]
