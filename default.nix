@@ -1,4 +1,4 @@
-with import <nixpkgs> { };
+{ srcs ? import ./nix/sources.nix, nixpkgs ? srcs.nixpkgs }
 
 let
   jekyll_env = bundlerEnv rec {
