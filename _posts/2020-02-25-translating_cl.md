@@ -392,8 +392,8 @@ newtype `S`, defined as
 
 ```haskell
 newtype S a = S { unS :: StateT Int (Writer [Doc]) a }
-          deriving (Functor, Applicative, Monad,
-                    MonadWriter [Doc], MonadState Int)
+            deriving (Functor, Applicative, Monad,
+                      MonadWriter [Doc], MonadState Int)
 ```
 
 And write the `FracComp` instance for `S`.
