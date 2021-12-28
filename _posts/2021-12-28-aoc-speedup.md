@@ -90,18 +90,21 @@ vertices to distances.  Using `minimumBy` on a `Set` in Haskell calls
 [here](https://hackage.haskell.org/package/containers-0.6.5.1/docs/src/Data.Set.Internal.html#foldl%27).
 This procedure of course will be linear in the size of the set, and a
 500 by 500 grid has 250,000 vertices to find the minimum of each time
-we want to select another vertex.  Yikes.  I imagined "what if" we
-were able to just find the next vertex of minimum distance from the
-source in constant time.  Thus, we would be able to breeze through
-this part of the algorithm and bring the runtime significantly down.
+we want to select another vertex.  Yikes.  I imagined, "what if we were
+able to just find the next vertex of minimum distance from the source
+in constant time?"  Thus, we would be able to breeze through this part
+of the algorithm and bring the runtime significantly down.
 
 ## Priority queues from scratch
 There's a nice "duality" to the operation of Dijkstra's algorithm when
 you use a priority queue.  You have a map where the keys are vertices
 and the elements are distances, but when you select the next vertex to
 visit, you use a priority queue where the keys (priorities) are
-distances and the elements are vertices.  This immediately suggests to
-us the following type.
+distances and the elements are vertices.  The structure of each is
+optimized for a different aspect of the algorithm, so conflating the
+two would intuitively cause slowdown.  With that in mind, we can
+define a priority queue as just a map from `Int`s to lists of values
+of that priority.
 
 ```haskell
 type PQueue a = IntMap [a]
@@ -158,6 +161,5 @@ Not using premade libraries was a great pedagogical constraint because
 it forced me to get to the essence of an algorithm or data structure.
 While implementations of Dijkstra's algorithm exists in various
 Haskell libraries, they are often too optimized or specialized to
-certain structures.  A similar situation happens with constraint
-problems in AoC.  Ultimately, however one takes part in AoC, it's a
-great learning experience for all.
+certain structures.  There's a lot to be learned from doing things
+from scratch!
