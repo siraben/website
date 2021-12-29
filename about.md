@@ -8,6 +8,6 @@ and mathematics at Vanderbilt University.  I'm interested in
 everything from hardware and assembly programming to functional
 programming and formal verification.
 
-This site was created with [Github Pages](https://pages.github.com)
-and [Jekyll](https://jekyllrb.com/).
+This site was created with [Jekyll](https://jekyllrb.com/) and
+deployed using [Netlify](https://www.netlify.com/).
 
