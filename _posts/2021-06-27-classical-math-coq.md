@@ -311,7 +311,7 @@ being in the image of `double` is decidable (hint: parity) and that
 it's injective, along with some additional lemmas as you see fit.  You
 might want to use the following induction principle to help.  Don't
 forget to make some proofs transparent so that `Eval compute in (halve
-1000).` reduces to `500`!
+1000).` reduces to `500`!  Send me an email if you solve it!
 
 ```coq
 (* Idea: if a property P holds on 0 and 1, and n+2 whenever it holds on n,
