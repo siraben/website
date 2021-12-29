@@ -29,9 +29,10 @@ over 2700 times faster!  Let's dive in.
 ## A naïve attempt
 [Day 15](https://adventofcode.com/2021/day/15) asks us to compute the
 lowest sum possible that results from traversing a grid from one
-corner to the other, where the possible moves are going right or down
-by one.  When I saw this problem, I thought, "this is just dynamic
-programming!"  Naturally, I wrote such a DP algorithm.
+corner to the other, where the possible moves are going right, down or
+up by one.  When I saw this problem, I thought, "this is just
+recursion!"  Naturally, I wrote such a recursive solution (glguy notes
+on IRC that this would be a lot faster if I memoized the calls).
 
 ```haskell
 import qualified Data.Map as M
@@ -39,7 +40,7 @@ import qualified Data.Map as M
 minSum :: Int -> Int -> M.Map (Int, Int) Int -> Int
 minSum r c g
   | r == 0 || c == 0 = g M.! (r, c)
-  | otherwise = g M.! (r, c) + min (minSum (r - 1) c g) (minSum r (c - 1) g)
+  | otherwise = g M.! (r, c) + minimum [minSum (r - 1) c g, minSum r (c - 1) g, minSum r (c + 1) g]
 ```
 
 This was sufficient for the very small example they gave.  But it
