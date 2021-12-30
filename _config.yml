@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: siraben's musings
-email: (my username) (at) gmail.com
+email: bensiraphob (at) gmail.com
 description: "Writing proofs and programs."
 baseurl: ""
 url: "siraben.github.io"
