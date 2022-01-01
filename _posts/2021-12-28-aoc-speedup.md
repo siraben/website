@@ -32,14 +32,15 @@ over 2700 times faster!  Let's dive in.
 ## A naïve attempt
 [Day 15](https://adventofcode.com/2021/day/15) asks us to compute the
 lowest sum possible that results from traversing a grid from one
-corner to the other, where the possible moves are going right, down or
-up by one.  When I saw this problem, I thought, "this is just
-recursion!"  Naturally, I wrote such a recursive solution (glguy notes
-on IRC that this would be a lot faster if I memoized the calls.)  The
-base case is if we're at the origin point, the cost is 0.  Otherwise,
-the minimum cost starting at `(r,c)` is the cost of the cell at
-`(r,c)` added with the minimum of recursively solving the same problem
-for `(r-1,c)`, `(r,c-1)` and `(r,c+1)`.
+corner to the other, where the possible moves are moving by one in the
+four cardinal directions.  When I saw this problem, I
+thought, "this is just recursion!"  Naturally, I wrote such a
+recursive solution (glguy notes on IRC that this would be a lot faster
+if I memoized the calls.)  The base case is if we're at the origin
+point, the cost is 0.  Otherwise, the minimum cost starting at `(r,c)`
+is the cost of the cell at `(r,c)` added with the minimum of
+recursively solving the same problem for `(r-1,c)`, `(r,c-1)` and
+`(r,c+1)`.
 
 ```haskell
 import qualified Data.Map as M
