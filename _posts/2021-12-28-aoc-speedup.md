@@ -10,6 +10,9 @@ date: 2021-12-28 23:52 +0700
 **Note:** this post contains spoilers for one of the days of Advent of
 Code 2021.
 
+This article was discussed on [Hacker
+News](https://news.ycombinator.com/item?id=29757176).
+
 This year, I had [a lot of fun](https://github.com/siraben/haoc-2021/)
 with [Advent of Code](https://adventofcode.com/2021/).  There's a nice
 problem solving aspect of it and refining your initial solution is
@@ -168,6 +171,3 @@ While implementations of Dijkstra's algorithm exists in various
 Haskell libraries, they are often too optimized or specialized to
 certain structures.  There's a lot to be learned from doing things
 from scratch!
-
-Join the discussion on [Hacker
-News](https://news.ycombinator.com/item?id=29757176).
