@@ -168,3 +168,6 @@ While implementations of Dijkstra's algorithm exists in various
 Haskell libraries, they are often too optimized or specialized to
 certain structures.  There's a lot to be learned from doing things
 from scratch!
+
+Join the discussion on [Hacker
+News](https://news.ycombinator.com/item?id=29757176).
