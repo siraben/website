@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Speeding up Dijkstra by a factor of 2700
+title: Speeding up my AoC solution by a factor of 2700 with Dijkstra's
 tags:
 - haskell
 - programming
