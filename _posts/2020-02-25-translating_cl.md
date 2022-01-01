@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Translating Common Lisp to Haskell---a case study
+title: Translating Common Lisp to Haskell—a case study
 date: 2020-02-25 18:46 -0600
 tags: [haskell,common-lisp]
 ---
