@@ -35,7 +35,7 @@ lowest sum possible that results from traversing a grid from one
 corner to the other, where the possible moves are going right, down or
 up by one.  When I saw this problem, I thought, "this is just
 recursion!"  Naturally, I wrote such a recursive solution (glguy notes
-on IRC that this would be a lot faster if I memoized the calls).  The
+on IRC that this would be a lot faster if I memoized the calls.)  The
 base case is if we're at the origin point, the cost is 0.  Otherwise,
 the minimum cost starting at `(r,c)` is the cost of the cell at
 `(r,c)` added with the minimum of recursively solving the same problem
@@ -51,9 +51,12 @@ minSum r c g
 ```
 
 This was sufficient for the very small example they gave.  But it
-fails even on part 1, which was a 100 by 100 grid!  Clearly, even a
-naïve solution won't save us here.  The next approach I went with uses
-[Dijkstra's
+fails even on part 1, which was a 100 by 100 grid!  In fact, it is an
+incorrect solution as well (if we restrict the problem to only down
+and right moves then a dynamic programming solution would work.)
+
+Clearly, even a naïve solution won't save us here.  The next approach
+I went with uses [Dijkstra's
 Algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm). One
 limitation I impose on myself in solving Advent of Code is to not use
 any libraries outside the [GHC bootstrap
