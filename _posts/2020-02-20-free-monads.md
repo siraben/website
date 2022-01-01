@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Free Monads from Scratch
+title: Free monads from scratch
 date: 2020-02-20 17:49 -0600
 tags: [haskell,math]
 ---
