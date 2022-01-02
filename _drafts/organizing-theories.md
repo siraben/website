@@ -20,8 +20,8 @@ in a proof we might start off with "Let F be a field...," and from
 that we immediately inherit all of the theories of fields, rings and
 groups that we can use later on in the proof.
 
-> The key to understanding complex systems is knowing what _not_ to
-> think. - Gerald Sussman
+> "The key to understanding complex systems is knowing what _not_ to
+> think." —Gerald Sussman
 
 There's a lot of literature on "proving in the small" in Coq.  For
 instance, [Software
@@ -62,7 +62,7 @@ building over a type `A`:
   - `opp : A -> A`
   - `addNr : forall x, add (opp x) x = idm`
 - Com_Group (inherits from Com_Monoid and Group)
-g
+
 <br><center><img src="/assets/alg.svg"></center><br>
 
 Then, if all goes well, we will test the expressiveness of the pattern
