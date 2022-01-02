@@ -1,9 +1,9 @@
-_drafts/
-_site/
-.jekyll-cache/
 .DS_Store
-.sass-cache/
-Gemfile.lock
-.bundle/
-vendor/
+_site
+_drafts
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
 .direnv
+.bundle

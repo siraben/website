@@ -103,17 +103,6 @@
     };
     version = "4.2.1";
   };
-  jekyll-compose = {
-    dependencies = ["jekyll"];
-    groups = ["jekyll_plugins"];
-    platforms = [];
-    source = {
-      remotes = ["https://rubygems.org"];
-      sha256 = "1ny8xps0mrmx2w0xxc9rwa15ch1wkxvdrzxiwnqramqwja566y04";
-      type = "gem";
-    };
-    version = "0.12.0";
-  };
   jekyll-feed = {
     dependencies = ["jekyll"];
     groups = ["jekyll_plugins"];
