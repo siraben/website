@@ -61,7 +61,7 @@ building over a type `A`:
   - `addrC : addrC : forall (x y : A), add x y = add y x;` (`add` is commutative)
 - Group (inherits from Monoid)
   - `opp : A -> A` (`inverse` function over `A`)
-  - `addNr : forall x, add (opp x) x = idm` (addition of an element
+  - `addNr : forall x, add (opp x) x = zero` (addition of an element
     with its inverse results in identity)
 - AbGroup (inherits from ComMonoid and Group)
 
@@ -71,7 +71,7 @@ from every structure.
 
 ```coq
 (* Let A an instance of AbGroup, then the lemma holds *)
-Lemma example A (a b : A) : add (add (opp b) (add b a)) (opp a) = idm.
+Lemma example A (a b : A) : add (add (opp b) (add b a)) (opp a) = zero.
 Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
 ## Typeclasses
@@ -87,12 +87,12 @@ Require Import ssrfun ssreflect.
 
 Class Semigroup (A : Type) (add : A -> A -> A) := { addrA : associative add }.
 
-Class Monoid A `{M : Semigroup A} (idm : A) := { add0r : left_id idm add }.
+Class Monoid A `{M : Semigroup A} (zero : A) := { add0r : left_id zero add }.
 
 Class ComMonoid A `{M : Monoid A} := { addrC : commutative add }.
 
 Class Group A `{M : Monoid A} (opp : A -> A) := {
-  addNr : forall x, add (opp x) x = idm
+  addNr : forall x, add (opp x) x = zero
 }.
 
 Class AbGroup A `{G : Group A} `{CM : !ComMonoid A}.
@@ -102,9 +102,9 @@ The example lemma is easily proved, showing the power of typeclass
 resolution in unifying all the structures.
 
 ```coq
-Lemma example A `{M : AbGroup A} :
-  forall (a b : A), add (add (opp b) (add b a)) (opp a) = idm.
-Proof. move=> a b. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
+Lemma example A `{M : AbGroup A} (a b : A)
+  : add (add (opp b) (add b a)) (opp a) = zero.
+Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
 
 See the accompanying gist for the instantation of the structures over
@@ -112,7 +112,7 @@ See the accompanying gist for the instantation of the structures over
 
 ## Hierarchy Builder
 The
-[hierarchy-builder](https://github.com/math-comp/hierarchy-builder)
+[Hierarchy Builder](https://github.com/math-comp/hierarchy-builder)
 (HB) package is best described as a boilerplate generator, but in a
 good way!  From a usability point of view, it is similar to
 typeclasses, though one has to be a bit more explicit about the
@@ -157,11 +157,18 @@ HB.structure Definition Monoid := { A of IsMonoid A }.
 Notation "0" := zero.
 ```
 
-Now it's pretty routine.  There's no surprises on how to define groups
-and commutative monoids.
+Now it's pretty routine.  There's no surprises on how to define
+commutative monoids and groups.
 
 
 ```coq
+(* Commutative monoid definition, inheriting from Monoid *)
+HB.mixin Record IsComMonoid A of Monoid A := {
+  addrC : forall (x y : A), x + y = y + x;
+}.
+
+HB.structure Definition ComMonoid := { A of IsComMonoid A }.
+
 (* Group definition, inheriting from Monoid *)
 HB.mixin Record IsGroup A of Monoid A := {
   opp : A -> A;
@@ -173,22 +180,51 @@ HB.structure Definition Group := { A of IsGroup A }.
 Notation "- x" := (opp x).
 ```
 
-TODO: define abelian group by combining commutative monoids with group
-```coq
-(* Abelian group definition, inheriting from Group *)
-HB.mixin Record IsAbGroup A of Group A := {
-  addrC : forall (x y : A), x + y = y + x;
-}.
+Now for the interesting part of the hierarchy.  Hierarchy Builder
+makes it easy to do multiple inheritance and combine the constraints,
+much like typeclasses.  Then we can seemlessly prove the lemma exactly
+as we did before.
 
-HB.structure Definition AbGroup := { A of IsAbGroup A }.
+```coq
+(* Abelian group definition, inheriting from Group and ComMonoid *)
+HB.structure Definition AbGroup := { A of IsGroup A & IsComMonoid A }.
 
 (* Lemma that holds for Abelian groups *)
 Lemma example (G : AbGroup.type) (a b : G) : -b + (b + a) + -a = 0.
 Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
+
 The underlying code it generates follows a pattern known as _packed
 classes_ (elaborated in the next section).  For future-proofing, the
-generated code can be shown by prefixing a HB command with `#[log]`:
+generated code can be shown by prefixing a HB command with
+`#[log]`. when the `HB.structure` command is invoked, a bunch of
+mixins and definitions are created.  For brevity I'm omitted some of
+them here.
+
+```
+...
+Top_AbGroup__to__Top_Semigroup is defined
+Top_AbGroup__to__Top_Monoid is defined
+Top_AbGroup__to__Top_Group is defined
+Top_AbGroup__to__Top_ComMonoid is defined
+join_Top_AbGroup_between_Top_ComMonoid_and_Top_Group is defined
+...
+```
+
+In more detail, here is the output of `Print
+Top_AbGroup__to__Top_ComMonoid.`, which shows that it is a coercion
+that lets us go from an Abelian group structure to a commutative
+monoid structure (i.e. going back up the hierarchy.)  Hierarchy
+Builder automatically creates these coercions and joins for us.
+
+```coq
+Top_AbGroup__to__Top_ComMonoid = 
+fun s : AbGroup.type =>
+{| ComMonoid.sort := s; ComMonoid.class := AbGroup.class s |}
+     : AbGroup.type -> ComMonoid.type
+
+Top_AbGroup__to__Top_ComMonoid is a coercion
+```
 
 ## Packed classes
 In the [math-comp](https://math-comp.github.io/) library, the approach
@@ -211,8 +247,8 @@ End SEMIGROUP.
 
 Module Type MONOID.
   Include SEMIGROUP.
-  Parameter idm : A.
-  Axiom add0r : left_id idm add.
+  Parameter zero : A.
+  Axiom add0r : left_id zero add.
 End MONOID.
 
 Module Type COM_MONOID.
@@ -223,7 +259,7 @@ End COM_MONOID.
 Module Type GROUP.
   Include MONOID.
   Parameter opp : A -> A.
-  Axiom addNr : forall x, add (opp x) x = idm.
+  Axiom addNr : forall x, add (opp x) x = zero.
 End GROUP.
 ```
 
@@ -265,7 +301,7 @@ The _telescopes_ pattern is relatively easy to get started with, and
 is similar to record-based patterns used across the Coq ecosystem.
 
 Here's how to define a monoid.  We create a module, postulate a type
-`T` and an identity element `idm` of type `T`, and combine the laws
+`T` and an identity element `zero` of type `T`, and combine the laws
 into a record called `law`.  The exports section is small here but we
 export just the `operator` coercion.
 
@@ -273,13 +309,13 @@ export just the `operator` coercion.
 Module Monoid.
 
 Section Definitions.
-Variables (T : Type) (idm : T).
+Variables (T : Type) (zero : T).
 
 Structure law := Law {
   operator : T -> T -> T;
   _ : associative operator;
-  _ : left_id idm operator;
-  _ : right_id idm operator
+  _ : left_id zero operator;
+  _ : right_id zero operator
 }.
 
 Local Coercion operator : law >-> Funclass.
@@ -297,7 +333,7 @@ Export Monoid.Exports.
 ```
 
 With that defined, we can instantiate the monoid structure for
-booleans (note that `idm` is automatically unified with `true`).
+booleans (note that `zero` is automatically unified with `true`).
 
 ```coq
 Import Monoid.
