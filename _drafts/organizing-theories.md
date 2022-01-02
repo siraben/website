@@ -6,33 +6,31 @@ tags:
 - programming
 ---
 
-Design patterns? In Coq?  The hard truth about software engineering is
-that non-trivial developments in any programming language need some
-uniform structure on them, so that they can be reasoned about and
-combined compositionally.  Imagine OCaml without its module system, or
-Java without interfaces, or C without header files.  What these
-features all share is that they let us separate the abstract interface
-of a datatype from its implementation details.  In the same spirit, in
-developments of theories in proof assistants, it is necessary to also
-have such abstractions, both as a matter of programming and as a
-matter of keeping in line with mathematical practice.  For instance,
-in a proof we might start off with "Let F be a field...," and from
-that we immediately inherit all of the theories of fields, rings and
-groups that we can use later on in the proof.
+Programming and mathematics have much in common, philosophically.  The
+disciplines deal with constructions of various kinds.  The
+constructions can get arbitrarily complex and interconnected.  As a
+result, it's no surprise that concepts such as overloaded notations,
+implicit coercions and inheritance pop up frequently in both
+disciplines.  For instance, a field inherits the properties of a ring,
+which in turn inherit from Abelian groups.  Mathematical structures
+even exhibit multiple inheritance, and such examples are plentiful.
+For instance, here's the dependency graph of the real number type in
+the [mathcomp-analysis](https://github.com/math-comp/analysis/)
+library.
 
-> "The key to understanding complex systems is knowing what _not_ to
-> think." —Gerald Sussman
+![Dependency graph of real numbers in
+mathcomp-analysis](/assets/real-hierarchy.png)
 
-There's a lot of literature on "proving in the small" in Coq.  For
-instance, [Software
-Foundations](https://softwarefoundations.cis.upenn.edu/lf-current/toc.html)
-is a whole series dedicated to various aspects of computer science and
-programming language semantics formalized in Coq.  However, when it
-comes to a [Coq for the working
-mathematician](https://mathoverflow.net/questions/155909/wanted-a-coq-for-the-working-mathematician),
-there's still a gap to be filled. In this article I will catalogue and
-explain various patterns I've encountered and their strengths and
-benefits.  Such patterns include:
+From left to right, the structures can be roughly classified as
+pertaining to order theory, algebra and topology.  For the
+object-oriented programmer: how many instances of multiple inheritance
+do you see?
+
+It's important to capture the way structures are organized in
+mathematics in a proof assistant with some uniform strategy,
+well-known in the OOP world as "design patterns."  In this article I
+will catalogue and explain a selection of various patterns and their
+strengths and benefits.  They are:
 
 - typeclasses
 - hierarchy builder
@@ -41,8 +39,8 @@ benefits.  Such patterns include:
 - structures and telescopes
 - packed classes and canonical structures
 
-For convenience I will start with the most recommended elegant and
-boilerplate-free patterns to the ugliest ones.
+For convenience as a reference I will start with the most recommended
+elegant and boilerplate-free patterns to the ugliest and broken ones.
 
 The running example will be a simple algebraic hierarchy: semigroup,
 monoid, commutative monoid, group, Abelian group.  That should be
@@ -50,37 +48,39 @@ elaborate enough to show how the approaches hold up in a more
 realistic setting.  Here's an overview of the hierarchy we'll be
 building over a type `A`:
 
-- Semigroup
-  - `add : A -> A -> A`
-  - `addrA : associative add`
-- Monoid (inherits from Semigroup)
-  - `idm : A`
-  - `add0r : left_id idm add`
-- Com_Monoid (inherits from Monoid)
-  - `addrC : commutative add`
-- Group (inherits from Monoid)
-  - `opp : A -> A`
-  - `addNr : forall x, add (opp x) x = idm`
-- Com_Group (inherits from Com_Monoid and Group)
-
 <br><center><img src="/assets/alg.svg"></center><br>
 
-Then, if all goes well, we will test the expressiveness of the pattern
-by proving a simple theorem, which makes use of every law from
-every structure.
+- Semigroup
+  - `add : A -> A -> A` (a binary operation over `A`)
+  - `addrA : associative add` (`add` is associative)
+- Monoid (inherits from Semigroup)
+  - `idm : A`
+  - `add0r : left_id idm add` (`idm` is a left identity for `add`)
+  - `addr0 : right_id idm add` (`idm` is a right identity for `add`)
+- Com_Monoid (inherits from Monoid)
+  - `addrC : commutative add` (`add` is commutative)
+- Group (inherits from Monoid)
+  - `opp : A -> A` (`inverse` function over `A`)
+  - `addNr : forall x, add (opp x) x = idm` (addition of an element
+    with its inverse results in identity)
+- Com_Group (inherits from Com_Monoid and Group)
+
+Then, if all goes well, we will test the expressiveness of our
+hierarchy by proving a simple lemma, which makes use of a law
+from every structure.
 
 ```coq
-(* For A an instance of Com_Group *)
+(* Let A an instance of Com_Group, then the lemma holds *)
 Lemma example A (a b : A) : add (add (opp b) (add b a)) (opp a) = idm.
 Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
 ## Typeclasses
-An alternative way to structure the hierarchy is to use typeclasses.
-This goes very well, our declaration for `Com_Group` is just the
-constraints.  However, pay special attention to the definition of
-`Com_Group`, there's a `!` in front of the `Com_Monoid` constraint to
-expose the implicit arguments again, so that it can implicitly inherit
-the monoid instance from `G`.
+A well-known and vanilla approach is to use typeclasses.  This goes
+very well, our declaration for `Com_Group` is just the constraints.
+However, pay special attention to the definition of `Com_Group`,
+there's a `!` in front of the `Com_Monoid` constraint to expose the
+implicit arguments again, so that it can implicitly inherit the monoid
+instance from `G`.
 
 ```coq
 Require Import ssrfun ssreflect.
@@ -242,85 +242,4 @@ Lemma andbT : right_id true andb. Proof. by case. Qed.
 Canonical andb_monoid := Law andbA andTb andbT.
 ```
 
-
-Programming and mathematics have much in common, philosophically.
-
-The disciplines deal with constructions of various kinds,
-
-As a result, it's no surprise that concepts such as overloaded
-notations, implicit coercions and inheritance pop up frequently in
-both disciplines.  For instance, a field inherits the properties of a
-ring, which in turn inherit from Abelian groups.  Mathematical
-structures even exhibit multiple inheritance.  An
-[algebra](https://en.wikipedia.org/wiki/Algebra_over_a_field) is a
-ring and also a module.  Mathematics is abound with rich structures.
-For instance, here's the dependency graph of the real number type in
-the [mathcomp-analysis](https://github.com/math-comp/analysis/)
-library.
-
-![Dependency graph of real numbers in
-mathcomp-analysis](/assets/real-hierarchy.png)
-
-From left to right, the structures can be roughly classified as
-pertaining to order theory, algebra and topology.
-
-The higher up one goes in mathematics, the
-more nuanced and
-
-Thus, when organizing mathematical theories in a proof assistant, we
-can learn from best practices in both disciplines.
-
-A numeric type is a recurring theme in programming languages.
-Clearly, it would be a bad idea to have specialized notation just to
-add `int`
-
-An algebraic structure is a recurring theme in mathematics.  We start
-from a set with a binary operation, postulate some laws about how that
-operation should behave, perhaps adding constants and other operations
-along the way.  In this way
-
-> The first and most important one is that formal proofs are just computer code about mathematical proofs, hence good practices in both domains are likely to apply to formal proofs too.
-
-<!-- some random commentary about programming and math -->
-
-Imagine you had to start programming from scratch again.  At first,
-the programs you write are nice and small, they can be held in your
-head fully and teased apart.  These are the types of programs you see
-they are [elegant weapons](https://xkcd.com/297/).
-
-Let's pretend we're creating a book that will contain all mathematical
-knowledge starting from nothing but formal logic. At first, there are
-few constructions.  Maybe you define the natural numbers and start
-fleshing out number theory, then you realize some abstract algebra
-would be useful, and define rings and fields ...
-
-
-It's hard to really appreciate just how much structure there is behind
-a mathematical concept.  Take, for instance, the real numbers and
-suppose that you want to explain it to a person from scratch.
-Fortunately, this already has been done, albeit to a computer instead.
-Here's the inheritance hierarchy of the real number type in the
-[mathcomp-analysis](https://github.com/math-comp/analysis/) library.
-
-![Dependency graph of real numbers in
-mathcomp-analysis](/assets/real-hierarchy.png)
-
-We can break it down roughly into three parts.  On the left there's
-order theory; posets and lattices (with many subtle flavors of them).
-In the middle there's algebra; rings, domains and fields (again with
-different flavors), and on the right there's topology; topological
-spaces, metric and pseudometric spaces.  Even with this distinction,
-we can see multiple inheritance everywhere!  For instance, you could
-conjure up a partially-ordered domain equipped with a norm.  How do
-you make expressing this ergonomic?
-
-
-
 ## Equality as an interface
-
-
-
-
-From a software eng
-
-[Programming in the large](https://en.wikipedia.org/wiki/Programming_in_the_large_and_programming_in_the_small) is hard.
