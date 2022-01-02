@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Organizing theories in Coq: a comparison"
+title: "Organizing mathematical theories in Coq: an overview"
 tags:
 - coq
 - programming
@@ -12,11 +12,12 @@ constructions can get arbitrarily complex and interconnected.  As a
 result, it's no surprise that concepts such as overloaded notations,
 implicit coercions and inheritance pop up frequently in both
 disciplines.  For instance, a field inherits the properties of a ring,
-which in turn inherit from Abelian groups.  Mathematical structures
-even exhibit multiple inheritance, and such examples are plentiful.
-For instance, here's the dependency graph of the real number type in
-the [mathcomp-analysis](https://github.com/math-comp/analysis/)
-library.
+which in turn inherit from Abelian groups.  The symbol + can mean
+different things depending on if we're talking about vector spaces or
+coproducts.  Mathematical structures even exhibit multiple
+inheritance.  For instance, here's the dependency graph of the real
+number type in the
+[mathcomp-analysis](https://github.com/math-comp/analysis/) library.
 
 ![Dependency graph of real numbers in
 mathcomp-analysis](/assets/real-hierarchy.png)
@@ -30,14 +31,14 @@ It's important to capture the way structures are organized in
 mathematics in a proof assistant with some uniform strategy,
 well-known in the OOP world as "design patterns."  In this article I
 will catalogue and explain a selection of various patterns and their
-strengths and benefits.  They are:
+strengths and benefits.  They are (in order of demonstration):
 
 - typeclasses
 - hierarchy builder
-- modules
-- records
-- structures and telescopes
 - packed classes and canonical structures
+- structures and telescopes
+- records
+- modules
 
 For convenience as a reference I will start with the most recommended
 elegant and boilerplate-free patterns to the ugliest and broken ones.
@@ -60,7 +61,7 @@ building over a type `A`:
 - ComMonoid (inherits from Monoid)
   - `addrC : addrC : forall (x y : A), add x y = add y x;` (`add` is commutative)
 - Group (inherits from Monoid)
-  - `opp : A -> A` (`inverse` function over `A`)
+  - `opp : A -> A` (inverse function)
   - `addNr : forall x, add (opp x) x = zero` (addition of an element
     with its inverse results in identity)
 - AbGroup (inherits from ComMonoid and Group)
@@ -115,13 +116,13 @@ The
 [Hierarchy Builder](https://github.com/math-comp/hierarchy-builder)
 (HB) package is best described as a boilerplate generator, but in a
 good way!  From a usability point of view, it is similar to
-typeclasses, though one has to be a bit more explicit about the
-transitive instances (see below).
+typeclasses.
 
 First we define semigroups.  `HB.mixin Record IsSemigroup A` declares
 that we are about to define a predicate `IsSemigroup` over a type `A`,
-and the two entries in the record are the binary operation and the
-associativity law, respectively.  We also define an infix notation for convenience.
+and the two entries in the record denote the binary operation and its
+associativity, respectively.  We also define an infix notation for
+convenience.
 
 ```coq
 From HB Require Import structures.
@@ -139,10 +140,9 @@ HB.structure Definition Semigroup := { A of IsSemigroup A }.
 Infix "+" := add.
 ```
 
-Next we define monoids.  Similarly to semigroups we use HB's mixins,
-but now declare the inheritance by `of IsSemigroup A`.  That is, for a
-type to satisfy being a monoid, it must be an instance of a semigroup
-first.
+Next we define monoids.  Similarly to semigroups we use the mixin
+command, but now declare the inheritance by `of IsSemigroup A`.  That
+is, for a type to be a monoid, it must be a semigroup first.
 
 ```coq
 (* Monoid definition, inheriting from Semigroup *)
@@ -157,8 +157,8 @@ HB.structure Definition Monoid := { A of IsMonoid A }.
 Notation "0" := zero.
 ```
 
-Now it's pretty routine.  There's no surprises on how to define
-commutative monoids and groups.
+Now that we've seen two examples, there's no surprises left on how to
+define commutative monoids and groups.
 
 
 ```coq
@@ -180,10 +180,10 @@ HB.structure Definition Group := { A of IsGroup A }.
 Notation "- x" := (opp x).
 ```
 
-Now for the interesting part of the hierarchy.  Hierarchy Builder
-makes it easy to do multiple inheritance and combine the constraints,
-much like typeclasses.  Then we can seemlessly prove the lemma exactly
-as we did before.
+Now for the interesting part.  Hierarchy Builder makes it easy for us
+to do multiple inheritance and combine the constraints, much like
+typeclasses.  Then we can seemlessly prove the lemma exactly as we did
+before.
 
 ```coq
 (* Abelian group definition, inheriting from Group and ComMonoid *)
@@ -197,7 +197,7 @@ Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 The underlying code it generates follows a pattern known as _packed
 classes_ (elaborated in the next section).  For future-proofing, the
 generated code can be shown by prefixing a HB command with
-`#[log]`. when the `HB.structure` command is invoked, a bunch of
+`#[log]`.  When the `HB.structure` command is invoked, a bunch of
 mixins and definitions are created.  For brevity I'm omitted some of
 them here.
 
@@ -226,10 +226,18 @@ fun s : AbGroup.type =>
 Top_AbGroup__to__Top_ComMonoid is a coercion
 ```
 
+It is worth noting that the
+[math-comp](https://github.com/math-comp/math-comp/pull/733) library
+is undergoing a transition to use Hierarchy Builder in the future,
+instead of hand-written instances and coercions.
+
 ## Packed classes
 In the [math-comp](https://math-comp.github.io/) library, the approach
-taken is known as the _packed classes_ design pattern.  I would
-probably do a more elaborate
+taken is known as the _packed classes_ design pattern.  It's a fairly
+complicated construct that I might elaborate more in a future blog
+post, but I'll give some highlights and a full example.
+
+
 ## Modules
 One approach, seen in [CPDT](http://adam.chlipala.net/cpdt/) is to use
 the module system to organize the hierarchy.  It seems fine for the
