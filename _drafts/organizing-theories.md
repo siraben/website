@@ -52,33 +52,33 @@ building over a type `A`:
 
 - Semigroup
   - `add : A -> A -> A` (a binary operation over `A`)
-  - `addrA : associative add` (`add` is associative)
+  - `addrA : forall x y z, add x (add y z) = add (add x y) z`
 - Monoid (inherits from Semigroup)
-  - `idm : A`
-  - `add0r : left_id idm add` (`idm` is a left identity for `add`)
-  - `addr0 : right_id idm add` (`idm` is a right identity for `add`)
-- Com_Monoid (inherits from Monoid)
-  - `addrC : commutative add` (`add` is commutative)
+  - `zero : A`
+  - `add0r : forall x, add zero x = x`
+  - `addr0 : forall x, add x zero = x`
+- ComMonoid (inherits from Monoid)
+  - `addrC : addrC : forall (x y : A), add x y = add y x;` (`add` is commutative)
 - Group (inherits from Monoid)
   - `opp : A -> A` (`inverse` function over `A`)
   - `addNr : forall x, add (opp x) x = idm` (addition of an element
     with its inverse results in identity)
-- Com_Group (inherits from Com_Monoid and Group)
+- AbGroup (inherits from ComMonoid and Group)
 
 Then, if all goes well, we will test the expressiveness of our
 hierarchy by proving a simple lemma, which makes use of a law
 from every structure.
 
 ```coq
-(* Let A an instance of Com_Group, then the lemma holds *)
+(* Let A an instance of AbGroup, then the lemma holds *)
 Lemma example A (a b : A) : add (add (opp b) (add b a)) (opp a) = idm.
 Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
 ## Typeclasses
 A well-known and vanilla approach is to use typeclasses.  This goes
-very well, our declaration for `Com_Group` is just the constraints.
-However, pay special attention to the definition of `Com_Group`,
-there's a `!` in front of the `Com_Monoid` constraint to expose the
+very well, our declaration for `AbGroup` is just the constraints.
+However, pay special attention to the definition of `AbGroup`,
+there's a `!` in front of the `ComMonoid` constraint to expose the
 implicit arguments again, so that it can implicitly inherit the monoid
 instance from `G`.
 
@@ -89,20 +89,20 @@ Class Semigroup (A : Type) (add : A -> A -> A) := { addrA : associative add }.
 
 Class Monoid A `{M : Semigroup A} (idm : A) := { add0r : left_id idm add }.
 
-Class Com_Monoid A `{M : Monoid A} := { addrC : commutative add }.
+Class ComMonoid A `{M : Monoid A} := { addrC : commutative add }.
 
 Class Group A `{M : Monoid A} (opp : A -> A) := {
   addNr : forall x, add (opp x) x = idm
 }.
 
-Class Com_Group A `{G : Group A} `{CM : !Com_Monoid A}.
+Class AbGroup A `{G : Group A} `{CM : !ComMonoid A}.
 ```
 
 The example lemma is easily proved, showing the power of typeclass
 resolution in unifying all the structures.
 
 ```coq
-Lemma example A `{M : Com_Group A} :
+Lemma example A `{M : AbGroup A} :
   forall (a b : A), add (add (opp b) (add b a)) (opp a) = idm.
 Proof. move=> a b. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
@@ -118,10 +118,77 @@ good way!  From a usability point of view, it is similar to
 typeclasses, though one has to be a bit more explicit about the
 transitive instances (see below).
 
-How is works is that the underlying code it generates follows a
-pattern known as _packed classes_ (elaborated in the next section),
-and for future-proofing the generated code can be shown by prefixing a
-HB command with `#[log]`:
+First we define semigroups.  `HB.mixin Record IsSemigroup A` declares
+that we are about to define a predicate `IsSemigroup` over a type `A`,
+and the two entries in the record are the binary operation and the
+associativity law, respectively.  We also define an infix notation for convenience.
+
+```coq
+From HB Require Import structures.
+From Coq Require Import ssreflect.
+
+(* Semigroup definition *)
+HB.mixin Record IsSemigroup A := {
+  add : A -> A -> A;
+  addrA : forall x y z, add x (add y z) = add (add x y) z;
+}.
+
+HB.structure Definition Semigroup := { A of IsSemigroup A }.
+
+(* Left associative by default *)
+Infix "+" := add.
+```
+
+Next we define monoids.  Similarly to semigroups we use HB's mixins,
+but now declare the inheritance by `of IsSemigroup A`.  That is, for a
+type to satisfy being a monoid, it must be an instance of a semigroup
+first.
+
+```coq
+(* Monoid definition, inheriting from Semigroup *)
+HB.mixin Record IsMonoid A of IsSemigroup A := {
+  zero : A;
+  add0r : forall x, zero + x = x;
+  addr0 : forall x, x + zero = x;
+}.
+
+HB.structure Definition Monoid := { A of IsMonoid A }.
+
+Notation "0" := zero.
+```
+
+Now it's pretty routine.  There's no surprises on how to define groups
+and commutative monoids.
+
+
+```coq
+(* Group definition, inheriting from Monoid *)
+HB.mixin Record IsGroup A of Monoid A := {
+  opp : A -> A;
+  addNr : forall x, opp x + x = 0;
+}.
+
+HB.structure Definition Group := { A of IsGroup A }.
+
+Notation "- x" := (opp x).
+```
+
+TODO: define abelian group by combining commutative monoids with group
+```coq
+(* Abelian group definition, inheriting from Group *)
+HB.mixin Record IsAbGroup A of Group A := {
+  addrC : forall (x y : A), x + y = y + x;
+}.
+
+HB.structure Definition AbGroup := { A of IsAbGroup A }.
+
+(* Lemma that holds for Abelian groups *)
+Lemma example (G : AbGroup.type) (a b : G) : -b + (b + a) + -a = 0.
+Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
+```
+The underlying code it generates follows a pattern known as _packed
+classes_ (elaborated in the next section).  For future-proofing, the
+generated code can be shown by prefixing a HB command with `#[log]`:
 
 ## Packed classes
 In the [math-comp](https://math-comp.github.io/) library, the approach
