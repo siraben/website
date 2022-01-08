@@ -76,6 +76,9 @@ Lemma example A (a b : A) : add (add (opp b) (add b a)) (opp a) = zero.
 Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 ```
 ## Typeclasses
+**Reading:** [Type Classes for Mathematics in Type
+Theory](https://arxiv.org/abs/1102.1323)
+
 A well-known and vanilla approach is to use typeclasses.  This goes
 very well, our declaration for `AbGroup` is just the constraints.
 However, pay special attention to the definition of `AbGroup`,
@@ -231,12 +234,17 @@ It is worth noting that the
 is undergoing a transition to use Hierarchy Builder in the future,
 instead of hand-written instances and coercions.
 
-## Packed classes
+## Packed classes & canonical structures
+**Reading:** [Canonical structures for the working Coq
+user](https://hal.inria.fr/hal-00816703v2/document)
+
 In the [math-comp](https://math-comp.github.io/) library, the approach
 taken is known as the _packed classes_ design pattern.  It's a fairly
 complicated construct that I might elaborate more in a future blog
 post, but I'll give some highlights and a full example.
 
+Note that math-comp is being ported to Hierarchy builder, so this
+style is being phased out.
 
 ## Modules
 One approach, seen in [CPDT](http://adam.chlipala.net/cpdt/) is to use
