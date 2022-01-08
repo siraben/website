@@ -29,7 +29,6 @@
               JEKYLL_ENV=production jekyll build --destination $out/public
             '';
             dontInstall = true;
-            # installPhase = "true";
           };
           devShell = stdenv.mkDerivation rec {
             src = ./.;
