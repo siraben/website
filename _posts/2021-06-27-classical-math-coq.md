@@ -5,6 +5,7 @@ date: 2021-06-27 16:16 +0700
 tags:
 - coq
 - math
+hasmath: true
 ---
 
 Coq code for this post available [here](https://gist.github.com/siraben/19b2c77b105f02799ca29c03e7790d6b).
@@ -16,8 +17,8 @@ formalize some basic stuff from [Algebra: Chapter
 0](https://bookstore.ams.org/gsm-104/), in particular the following
 statement.
 
-> Proposition 2.1. Assume A is non-empty, let `f : A -> B` be a
-> function.  `f` has a left-inverse if and only if it is injective.
+_Proposition 2.1_. Assume $$A$$ is non-empty, let $$f : A \to B$$ be a
+function.  $$f$$ has a left-inverse if and only if it is injective.
 
 This is a pretty trivial statement with a pretty trivial proof on
 paper (try it!), so I expected the Coq proof to be quite easy as well.
@@ -64,30 +65,44 @@ then it has a left-inverse.  We have the following proof state:
 ```
 
 The goal is `exists g : B -> A, ...`.  In Coq we prove such statements
-by providing the function `g` then showing indeed it is a
-left-inverse.  The paper proof constructed such a `g` as well, so just
+by providing the function $$g$$ then showing indeed it is a
+left-inverse.  The paper proof constructed such a $$g$$ as well, so just
 translate!
 
 Here is the paper proof:
 
-![Paper proof](/assets/backward-paper-proof.png "Proof of backwards implication from the book")
+$$(\Longleftarrow)$$ Now assume $$f : A\to B$$ is injective.  In order
+to construct a function $$g : B\to A$$ we have to assign a unique
+value $$g(b)\in A$$ for each element $$b\in B$$.  For this, choose any
+fixed element $$s\in A$$ (which we can do because $$A\neq\emptyset$$);
+then set
+
+$$
+{\displaystyle g(b)={
+\begin{cases}
+ a&{\text{if }}b = f(a)\,\text{for some}\,a\in A,\\[4px]
+ s&{\text{if }b\notin \text{im } f}
+\end{cases}}}
+$$
 
 ## Solving the halting problem
-We have a function `g` that, given a `b`, returns an `a` if such an
-`a` satisfying `b = f(a)` exists, or returns a fixed element `s` of
-`f`.  Except, the devil is in the details, or in this case, in the
-word _if_.  We have to make a decision depending on whether something
-is in the image or not. Actually, if we can do this for arbitrary sets
-`A` and `B`, we can solve the halting problem.  Here's a short proof:
+We have a function $$g$$ that, given a $$b$$, returns an $$a$$ if such
+an $$a$$ satisfying $$b = f(a)$$ exists, or returns a fixed element
+$$s$$ of $$f$$.  Except, the devil is in the details, or in this case,
+in the word _if_.  We have to make a decision depending on whether
+something is in the image or not. Actually, if we can do this for
+arbitrary sets $$A$$ and $$B$$, we can solve the halting problem.
+Here's a short proof:
 
-Assume we can always tell if `b : B` is in the image of `f` or not.
-Let `M` be a Turing machine.  Define `f : ℕ -> ℕ` where `f(n) = 0` if
-`M` halts in `n` steps, otherwise return `n+1`.  This is obviously
-injective.  So, what would `g(0)` give?  It would return the number of
-steps that it takes for `M` to halt, or the fixed element if `M`
-diverges, but `M` is an arbitrary Turing machine, so that means we can
-solve the halting problem.  (In fact you can also prove LEM from the
-theorem, see Appendix B).
+Assume we can always tell if $$b : B$$ is in the image of $$f$$ or
+not.  Let $$M$$ be a Turing machine.  Define $$f : \mathbb{N} \to
+\mathbb{N}$$ where $$f(n) = 0$$ if $$M$$ halts in $$n$$ steps,
+otherwise return $$n+1$$.  This is obviously injective.  So, what
+would $$g(0)$$ give?  It would return the number of steps that it
+takes for $$M$$ to halt, or the fixed element if $$M$$ diverges, but
+$$M$$ is an arbitrary Turing machine, so that means we can solve the
+halting problem.  (In fact you can also prove LEM from the theorem,
+see Appendix B).
 
 In type theory, all the functions we ever write are computable by
 construction, so it actually turns out to be impossible to prove this
@@ -104,11 +119,11 @@ Inductive sumor (A:Type) (B:Prop) : Type :=
  where "A + { B }" := (sumor A B) : type_scope.
 ```
 
-Essentially this an option type that gives the value of type `A` or a
-proof why such a value cannot be produced.  This is important because
-we want to use the left of the sum as the return value for the
-left-inverse of `f`, and the right of the sum as a single bit to
-decide to return the default value `s`.
+Essentially this an option type that gives the value of type $$A$$ or
+a proof why such a value cannot be produced.  This is important
+because we want to use the left of the sum as the return value for the
+left-inverse of $$f$$, and the right of the sum as a single bit to
+decide to return the default value $$s$$.
 
 ```coq
 (* Property of decidability of being in the image *)
@@ -142,19 +157,19 @@ are stuck at following proof state.
   a = a'
 ```
 
-We need to prove `a = a'`, which follows from `f` being injective,
+We need to prove $$a = a'$$, which follows from $$f$$ being injective,
 however note that the hypothesis `inj` states the contrapositive
 claim.
 
 In an undergrad discrete math class, one quickly learns about the
-contrapositive law in classical logic, `(P -> Q) <-> (¬ Q -> ¬ P)`.
-It turns out that in type theory (more generally, in intuitionistic
-logic), the forward implication is provable but the backward
-implication requires double negation elimination, which is equivalent
-to LEM.  As a result, we can make prove a slightly more general
-theorem if we use the following definition of `injective`. The proof
-that our definition of injectivity implies the one used in the book is
-trivial.
+contrapositive law in classical logic, $$(P \to Q) \leftrightarrow
+(\neg Q \to \neg P)$$.  It turns out that in type theory (more
+generally, in intuitionistic logic), the forward implication is
+provable but the backward implication requires double negation
+elimination, which is equivalent to LEM.  As a result, we can make
+prove a slightly more general theorem if we use the following
+definition of `injective`. The proof that our definition of
+injectivity implies the one used in the book is trivial.
 
 ```coq
 (* New definition of injective *)
@@ -196,7 +211,7 @@ So, what did we learn from this not-so-trivial proof of a trivial
 theorem?
 
 - when we used the truth-value of properties of values over arbitrary
-  types (in this case, checking if an element of `B` is in the image
+  types (in this case, checking if an element of $$B$$ is in the image
   of a function), we might want this property to be _decidable_
 - sometimes we can restate things in a more general way that make it
   easier to prove in type theory, while still being classically
@@ -206,7 +221,7 @@ This experience left me feeling a bit philosophical.  Note some of
 these points are subjective, and I speak from my perspective as an
 undergraduate in pure math and CS.
 
-We lost a bit of symmetry.  What used to be a simple `<->` is now two
+We lost a bit of symmetry.  What used to be a simple _iff_ is now two
 separate lemmas, where the backward direction takes a proof that
 finding a preimage is decidable.  Did that make matters worse?  I
 don't think so.  I think the central question is, what do we _want_
@@ -260,8 +275,8 @@ quote Bauer from his talk,
 > it. Particular cases of law of excluded middle might be OK, but you
 > have to establish them first.
 
-While `P \/ ¬ P` is not provable for an arbitrary proposition `P`, if
-you can show it for some particular `P` (or a family of such `P`s),
+While $$P \vee \neg P$$ is not provable for an arbitrary proposition $$P$$, if
+you can show it for some particular $$P$$ (or a family of such $$P$$'s),
 [you regain classical
 reasoning](https://coq.inria.fr/library/Coq.Logic.Decidable.html).
 For further excellent discussion on this topic, I recommend [this
