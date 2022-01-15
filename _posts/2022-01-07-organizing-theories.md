@@ -59,12 +59,14 @@ building over a type `A`:
   - `add0r : forall x, add zero x = x`
   - `addr0 : forall x, add x zero = x`
 - ComMonoid (inherits from Monoid)
-  - `addrC : addrC : forall (x y : A), add x y = add y x;` (`add` is commutative)
+  - `addrC : addrC : forall (x y : A), add x y = add y x;`
 - Group (inherits from Monoid)
   - `opp : A -> A` (inverse function)
   - `addNr : forall x, add (opp x) x = zero` (addition of an element
     with its inverse results in identity)
 - AbGroup (inherits from ComMonoid and Group)
+
+You may also see ssreflect style statements such as `associative add`.
 
 Then, if all goes well, we will test the expressiveness of our
 hierarchy by proving a simple lemma, which makes use of a law
@@ -298,19 +300,44 @@ The command has indeed failed with message:
 The label A is already declared.
 ```
 
-## Structures
+## Records
 Let's define a semigroup using one of the most basic features of Coq,
-structures (AKA records).
+records.  Writing it this way means it is simply just a conjunction of
+laws as an _n_-ary predicate over _n_ components.  We define the
+semigroup structure first, then consider monoids as an augmented
+semigroup.
 
 ```coq
 Require Import ssrfun.
 
-Structure Semigroup : Type := makeSemigroup {
-  A :> Set;
-  add : A -> A -> A;
-  addrA : associative add;
+Record Semigroup {A : Type} : Type := makeSemigroup {
+  s_add : A -> A -> A;
+  s_addrA : associative s_add;
+}.
+
+Record Monoid {A : Type} : Type := makeMonoid {
+  m_semi : @Semigroup A;
+  m_zero : A;
+  m_add0r : forall x, (s_add m_semi) m_zero x = x;
+  m_addr0 : forall x, (s_add m_semi) x m_zero = x;
 }.
 ```
+
+Unfortunately we already have to make an awkward choice to do some
+sort of indexing to access the underlying shared associative binary
+operation.  At the next level when one defines groups as an augmented
+monoid, the situation only gets worse:
+
+```coq
+Record Group {A : Type} : Type := makeGroup {
+  m_monoid : @Monoid A;
+  g_inv : A -> A;
+  g_addNr : forall x, (s_add (m_semi m_monoid)) (g_inv x) x = m_zero m_monoid;
+}.
+```
+
+We have to access the operation through _two_ different aliases for
+it!  Thus, while flexible, this approach does not scale.
 
 ## Telescopes
 The _telescopes_ pattern is relatively easy to get started with, and
