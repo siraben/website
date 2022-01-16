@@ -4,7 +4,7 @@ title: 'Organizing mathematical theories in Coq: an overview'
 tags:
 - coq
 - programming
-date: 2022-01-07 21:58 +0700
+date: 2022-01-16 12:24 +0900
 ---
 Programming and mathematics have much in common, philosophically.  The
 disciplines deal with constructions of various kinds.  The
@@ -82,11 +82,11 @@ Proof. by rewrite addrC (addrA (opp b)) addNr add0r addNr. Qed.
 Theory](https://arxiv.org/abs/1102.1323)
 
 A well-known and vanilla approach is to use typeclasses.  This goes
-very well, our declaration for `AbGroup` is just the constraints.
-However, pay special attention to the definition of `AbGroup`,
-there's a `!` in front of the `ComMonoid` constraint to expose the
-implicit arguments again, so that it can implicitly inherit the monoid
-instance from `G`.
+very well, our declaration for `AbGroup` is just the constraints,
+similar to how it would be done in Haskell.  However, pay special
+attention to the definition of `AbGroup`, there's a `!` in front of
+the `ComMonoid` constraint to expose the implicit arguments again, so
+that it can implicitly inherit the monoid instance from `G`.
 
 ```coq
 Require Import ssrfun ssreflect.
@@ -248,6 +248,105 @@ post, but I'll give some highlights and a full example.
 Note that math-comp is being ported to Hierarchy builder, so this
 style is being phased out.
 
+## Telescopes
+
+According to the Mathematical Components book,
+
+> Telescopes suffice for most simple — tree-like and shallow —
+> hierarchies, so new users do not necessarily need expertise with the
+> more sophisticated packed class organization covered in the next
+> section
+
+Here's how to define a monoid.  We create a module, postulate a type
+`T` and an identity element `zero` of type `T`, and combine the laws
+into a record called `law`.  The exports section is small here but we
+export just the `operator` coercion.
+
+```coq
+Module Monoid.
+
+Section Definitions.
+Variables (T : Type) (zero : T).
+
+Structure law := Law {
+  operator : T -> T -> T;
+  _ : associative operator;
+  _ : left_id zero operator;
+  _ : right_id zero operator
+}.
+
+Local Coercion operator : law >-> Funclass.
+
+End Definitions.
+
+Module Import Exports.
+
+Coercion operator : law >-> Funclass.
+
+End Exports.
+End Monoid.
+
+Export Monoid.Exports.
+```
+
+With that defined, we can instantiate the monoid structure for
+booleans (note that `zero` is automatically unified with `true`).
+
+```coq
+Import Monoid.
+
+Lemma andbA : associative andb. Proof. by case. Qed.
+Lemma andTb : left_id true andb. Proof. by case. Qed.
+Lemma andbT : right_id true andb. Proof. by case. Qed.
+
+Canonical andb_monoid := Law andbA andTb andbT.
+```
+
+## Equality as an interface
+## Records
+Let's define a semigroup using one of the most basic features of Coq,
+records.  Writing it this way means it is simply just a conjunction of
+laws as an _n_-ary predicate over _n_ components.  We define the
+semigroup structure first, then consider monoids as an augmented
+semigroup.
+
+```coq
+Require Import ssrfun.
+
+Record Semigroup {A : Type} : Type := makeSemigroup {
+  s_add : A -> A -> A;
+  s_addrA : associative s_add;
+}.
+
+Record Monoid {A : Type} : Type := makeMonoid {
+  m_semi : @Semigroup A;
+  m_zero : A;
+  m_add0r : forall x, (s_add m_semi) m_zero x = x;
+  m_addr0 : forall x, (s_add m_semi) x m_zero = x;
+}.
+```
+
+Unfortunately we already have to make an awkward choice to do some
+sort of indexing to access the underlying shared associative binary
+operation.  At the next level when one defines groups as an augmented
+monoid, the situation only gets worse:
+
+```coq
+Record Group {A : Type} : Type := makeGroup {
+  m_monoid : @Monoid A;
+  g_inv : A -> A;
+  g_addNr : forall x, (s_add (m_semi m_monoid)) (g_inv x) x = m_zero m_monoid;
+}.
+```
+
+We have to access the operation through _two_ different indexes for
+it!  Perhaps we might want to add a member to the record that is equal
+to the inherited operation, but this too is not satisfactory since it
+prevents us from creating a _canonical name_ for the operation in
+question (for instance, `add`), and we'd have to do this at
+arbitrarily nested levels.  Thus, while flexible, this approach does
+not scale.
+
 ## Modules
 One approach, seen in [CPDT](http://adam.chlipala.net/cpdt/) is to use
 the module system to organize the hierarchy.  It seems fine for the
@@ -300,92 +399,11 @@ The command has indeed failed with message:
 The label A is already declared.
 ```
 
-## Records
-Let's define a semigroup using one of the most basic features of Coq,
-records.  Writing it this way means it is simply just a conjunction of
-laws as an _n_-ary predicate over _n_ components.  We define the
-semigroup structure first, then consider monoids as an augmented
-semigroup.
 
-```coq
-Require Import ssrfun.
+## Final thoughts
+Just like software engineering, there are many ways to organize
+mathematical theories in proof assistants such as Coq.
 
-Record Semigroup {A : Type} : Type := makeSemigroup {
-  s_add : A -> A -> A;
-  s_addrA : associative s_add;
-}.
-
-Record Monoid {A : Type} : Type := makeMonoid {
-  m_semi : @Semigroup A;
-  m_zero : A;
-  m_add0r : forall x, (s_add m_semi) m_zero x = x;
-  m_addr0 : forall x, (s_add m_semi) x m_zero = x;
-}.
-```
-
-Unfortunately we already have to make an awkward choice to do some
-sort of indexing to access the underlying shared associative binary
-operation.  At the next level when one defines groups as an augmented
-monoid, the situation only gets worse:
-
-```coq
-Record Group {A : Type} : Type := makeGroup {
-  m_monoid : @Monoid A;
-  g_inv : A -> A;
-  g_addNr : forall x, (s_add (m_semi m_monoid)) (g_inv x) x = m_zero m_monoid;
-}.
-```
-
-We have to access the operation through _two_ different aliases for
-it!  Thus, while flexible, this approach does not scale.
-
-## Telescopes
-The _telescopes_ pattern is relatively easy to get started with, and
-is similar to record-based patterns used across the Coq ecosystem.
-
-Here's how to define a monoid.  We create a module, postulate a type
-`T` and an identity element `zero` of type `T`, and combine the laws
-into a record called `law`.  The exports section is small here but we
-export just the `operator` coercion.
-
-```coq
-Module Monoid.
-
-Section Definitions.
-Variables (T : Type) (zero : T).
-
-Structure law := Law {
-  operator : T -> T -> T;
-  _ : associative operator;
-  _ : left_id zero operator;
-  _ : right_id zero operator
-}.
-
-Local Coercion operator : law >-> Funclass.
-
-End Definitions.
-
-Module Import Exports.
-
-Coercion operator : law >-> Funclass.
-
-End Exports.
-End Monoid.
-
-Export Monoid.Exports.
-```
-
-With that defined, we can instantiate the monoid structure for
-booleans (note that `zero` is automatically unified with `true`).
-
-```coq
-Import Monoid.
-
-Lemma andbA : associative andb. Proof. by case. Qed.
-Lemma andTb : left_id true andb. Proof. by case. Qed.
-Lemma andbT : right_id true andb. Proof. by case. Qed.
-
-Canonical andb_monoid := Law andbA andTb andbT.
-```
-
-## Equality as an interface
+Personally, I would lean more towards organizing my theories with
+Hierarchy Builder---or at the very least, typeclasses, if external
+dependencies are an issue.
