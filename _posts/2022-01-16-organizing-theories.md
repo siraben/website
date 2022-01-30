@@ -305,7 +305,6 @@ Lemma andbT : right_id true andb. Proof. by case. Qed.
 Canonical andb_monoid := Law andbA andTb andbT.
 ```
 
-## Equality as an interface
 ## Records
 Let's define a semigroup using one of the most basic features of Coq,
 records.  Writing it this way means it is simply just a conjunction of
