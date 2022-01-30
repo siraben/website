@@ -156,8 +156,8 @@ is, for a type to be a monoid, it must be a semigroup first.
 (* Monoid definition, inheriting from Semigroup *)
 HB.mixin Record IsMonoid A of IsSemigroup A := {
   zero : A;
-  add0r : forall x, zero + x = x;
-  addr0 : forall x, x + zero = x;
+  add0r : forall x, add zero x = x;
+  addr0 : forall x, add x zero = x;
 }.
 
 HB.structure Definition Monoid := { A of IsMonoid A }.
