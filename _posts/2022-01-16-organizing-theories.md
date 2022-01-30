@@ -93,7 +93,10 @@ Require Import ssrfun ssreflect.
 
 Class Semigroup (A : Type) (add : A -> A -> A) := { addrA : associative add }.
 
-Class Monoid A `{M : Semigroup A} (zero : A) := { add0r : left_id zero add }.
+Class Monoid A `{M : Semigroup A} (zero : A) := {
+  add0r : forall x, zero + x = x;
+  addr0 : forall x, x + zero = x
+}.
 
 Class ComMonoid A `{M : Monoid A} := { addrC : commutative add }.
 
