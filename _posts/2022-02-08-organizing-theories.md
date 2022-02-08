@@ -4,7 +4,7 @@ title: 'Organizing mathematical theories in Coq: an overview'
 tags:
 - coq
 - programming
-date: 2022-01-16 12:24 +0900
+date: 2022-02-08 12:01 -0600
 ---
 Programming and mathematics have much in common, philosophically.  The
 disciplines deal with constructions of various kinds.  The
