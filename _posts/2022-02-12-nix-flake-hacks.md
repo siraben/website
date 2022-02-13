@@ -104,7 +104,7 @@ $ nix-build -E 'with (import ./. {system="x86_64-darwin";}); hello'
 So the Nix command equivalent would be
 
 ```ShellSession
-$ nix build  --expr 'with (import ./. {system="x86_64-darwin";}); hello'
+$ nix build --expr 'with (import ./. {system="x86_64-darwin";}); hello'
 error: access to absolute path '/Users/siraben/Git/forks/nixpkgs' is forbidden in pure eval mode (use '--impure' to override)
 (use '--show-trace' to show detailed location information)
 ```
