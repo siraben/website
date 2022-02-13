@@ -8,8 +8,8 @@ date: 2022-02-12 22:09 -0600
 <script type="text/javascript" src="http://livejs.com/live.js"></script>
 
 [Nix flakes](https://www.tweag.io/blog/2020-05-25-flakes/) landed in
-Nix stable with the
-[2.4 update](https://discourse.nixos.org/t/nix-2-4-released/15822) a few
+Nix (as an experimental option) with the [2.4
+update](https://discourse.nixos.org/t/nix-2-4-released/15822) a few
 months ago, and represent a substantial change in how projects using
 Nix can standardize their outputs, inputs and ensure reproducibility.
 
