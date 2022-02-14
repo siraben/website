@@ -76,7 +76,7 @@ warning: not writing modified lock file of flake 'github:winterqt/deploy':
   → 'github:NixOS/nixpkgs/a529f0c125a78343b145a8eb2b915b0295e4f459' (2022-01-31)
 ```
 
-Notice that the reference to Nixpkgs went *back* in time by a month.
+Notice that the reference to Nixpkgs went forward in time by a month.
 In this case, I avoided rebuilds and the server config deployed
 without any problems.  Of course, the natural downside to this is that
 you might lose reproducibility if there were major changes between the
