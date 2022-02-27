@@ -3,6 +3,7 @@ layout: post
 title: Free monads from scratch
 date: 2020-02-20 17:49 -0600
 tags: [haskell,math]
+hasmath: true
 ---
 Haskellers love monads, and there's a good reason why.  Without
 monads, Haskell wouldn't have much of an I/O system at all, as Simon
@@ -42,33 +43,25 @@ and some category theory.
 A [free object](https://en.wikipedia.org/wiki/Free_object) is a
 construction that obeys the axioms for that object, generated from
 something simpler.  A canonical example of a free object is a free
-monoid.  Recall the axioms for monoids (expressed as a typeclass in
-Coq):
+monoid.  Recall that a monoid is a set $$S$$ together with a binary
+operation $$\cdot$$ and an element $$e\in S$$ such that
+$$a\cdot(b\cdot c)=(a\cdot b)\cdot c$$ for all $$a,b,c$$ and $$e\cdot
+a=a\cdot e=a$$ for all $$a$$.
 
-```coq
-Class Monoid { A : Type } (op : A -> A -> A)(unit : A) : Type :=
-{ op_assoc : forall x y z : A, op x (op y z) = op (op x y) z;
-  unit_left : forall x, op unit x = x;
-  unit_right : forall x, op x unit = x }.
-```
-
-`op_assoc` states that the operation must be associative, and
-`unit_left` and `unit_right` state that the element `unit` acts as an
-identity on the left and right for any `x` in the set respectively.
-
-So, given a set `S = {a, b, c, d}`, what is the free monoid over it?
-It's simply the language `{a, b, c, d}*`, giving us strings like `""`,
-`"aa"`, `"abc"`, `"acdbcd"` and so on.  The only thing we can do with
-these objects is treat them according to the axioms they obey, in
-other words, we can only concatenate them and nothing more.
+So, given a set $$S = \{a, b, c, d\}$$, what is the free monoid over
+it?  It's simply the language $$\{a, b, c, d\}*$$, giving us strings
+like $$e$$, $$aa$$, $$abc$$, $$acdbcd$$ and so on.  The only thing we
+can do with these objects is treat them according to the axioms they
+obey, in other words, we can only concatenate them and nothing more.
 
 People who have written interpreters may notice that free objects are
-like valid _ASTs_ of a particular programming language.  The axioms
-let us perform some manipulations, for instance, if we create a free
-group, we know we can rewrite `a * a^-1` to `unit`, because that's one
-of the group axioms.  However, we would be unable to reduce something
-like `2+3` because we don't have an _interpretation_ for it.  This
-will come in later when we implement interpreters for effects.
+like valid ASTs of a particular programming language.  The axioms let
+us perform some manipulations, for instance, if we create a free
+group, we know we can rewrite $$a\cdot a^{-1}$$ to $$e$$, because
+that's one of the group axioms.  However, we would be unable to reduce
+something like $$2+3$$ because we don't have an _interpretation_ for
+it.  This will come in later when we implement interpreters for
+effects.
 
 Enough of this abstract algebra, let's see some code!
 
