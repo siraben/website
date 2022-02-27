@@ -5,6 +5,11 @@ date: 2020-02-20 17:49 -0600
 tags: [haskell,math]
 hasmath: true
 ---
+
+See the accompanying
+[gist](https://gist.github.com/siraben/602014ff9702e318937ee3faaade0d9d)
+for the code.
+
 Haskellers love monads, and there's a good reason why.  Without
 monads, Haskell wouldn't have much of an I/O system at all, as Simon
 Peyton-Jones described it, it was embarassing to note that the
@@ -398,6 +403,9 @@ sumNEx = sumN
        & efRunSt (State (0,10))
        & efRun
 ```
+
+Run the code shown in this post by downloading the
+[gist](https://gist.github.com/siraben/602014ff9702e318937ee3faaade0d9d).
 
 ## Conclusion and Further Reading
 I hope this post was illuminating in understanding what free monads
