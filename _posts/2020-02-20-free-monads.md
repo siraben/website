@@ -352,9 +352,18 @@ about no instances for `(Exc String :<: Void)`.  It's really a type
 inference failure, because Haskell could not infer the instance at the
 call-site (this is a problem effect libraries attempt to address).
 
+We can also show that the order in which effects are handled makes a
+difference.  For instance, in the first line below we handle the
+exception first then the state after (so the state persists even
+though an exception is thrown), and in the second line the state is
+handled first followed by the exception, which means the state is
+discarded when the exception is thrown.
+
 ```
 λ> ticke 1 & efRunExcString & efRunCalc (Mem 0) & efRun
 (Left "too big",Mem 5)
+λ> ticke 1 & efRunCalc (Mem 0) & efRunExcString & efRun
+Left "too big"
 ```
 
 For our final example, we generalize the state to an arbitrary type
