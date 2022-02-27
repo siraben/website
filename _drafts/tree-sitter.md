@@ -37,7 +37,7 @@ a simple imperative language, and you can get the source code
 [here](https://github.com/siraben/tree-sitter-imp).
 
 This post was inspired by my research in improving the developer
-experience in
+experience for
 [FORMULA](https://github.com/siraben/tree-sitter-formula) and
 [Spin](https://github.com/siraben/tree-sitter-promela).
 
@@ -170,3 +170,15 @@ recommend to people writing code in your language.  Maybe there's an
 unused variable, or style guide for naming identifers, redundant
 conditional expressions and so on.  I have yet to do this myself, so
 stay tuned for a future blog post!
+
+### Highlighting redundant statements
+
+```scheme
+;; Redundant assignment
+((asgn name: _ @left _ @right)
+ (#eq? @left @right))
+
+;; Redundant if
+(if condition: _ @c consequent: _ @l alternative: _ @r
+ (#eq? @l @r)) @redundant_if
+```
