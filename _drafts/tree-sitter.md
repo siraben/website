@@ -32,7 +32,7 @@ achieve much more easily:
 
 And the best part is that you can do it in an afternoon!  In this post
 we'll write a grammar for
-[IMP](https://softwarefoundations.cis.upenn.edu/lf-current/Imp.html),
+[Imp](https://softwarefoundations.cis.upenn.edu/lf-current/Imp.html),
 a simple imperative language, and you can get the source code
 [here](https://github.com/siraben/tree-sitter-imp).
 
@@ -58,6 +58,7 @@ is a simple imperative language often used as an illustrative example
 in PL theory.
 
 ### Setting up the project
+This is how to set up a tree-sitter project.r
 ### Writing the grammar
 #### Expressions
 First we follow the grammar for expressions given in the chapter.
@@ -65,50 +66,98 @@ Here it is for reference.
 
 ```
 a := nat
-    | a + a
-    | a - a
-    | a * a
-    | (a)
+   | id
+   | a + a
+   | a - a
+   | a * a
+   | (a)
 
 b := true
-    | false
-    | a = a
-    | a <= a
-    | ~b
-    | b && b
+   | false
+   | a = a
+   | a <= a
+   | ~b
+   | b && b
 ```
 
 `a` corresponds to arithmetic expressions and `b` corresponds to
 boolean expressions.
 
-This corresponds to the 
+The easiest things to handle are numbers and variables.  We can add
+the following rules:
 
-### Defining precedence and associativity
+```javascript
+id: $ => /[a-z]+/,
+nat: $ => /[0-9]+/,
+```
+
+This corresponds to the tree-sitter grammar
+
+```javascript
+program: $ => $.aexp,
+aexp: $ => choice(
+    /[0-9]+/,
+    /[a-z]+/,
+    seq($.aexp,'+',$.aexp),
+    seq($.aexp,'-',$.aexp),
+    seq($.aexp,'*',$.aexp),
+    seq('(',$.aexp,')'),
+),
+```
+
+#### Defining precedence and associativity
 Let's try to compile it!  Here's what tree-sitter outputs:
 
-
-In parsing, resolving precedence and associativity is an important
-part of making sure our parse trees correspond to what we intuitively
-read things.  In this case, we want multiplication to bind more
-tightly than addition, that is, we want `4+5*3` to be parsed as
-`4+(5*3)` instead of `(4+5)*3`, and we want to use parenthesis to make
-it clear when we want expressions grouped a certain way.  In
-tree-sitter, associativity can be declared with `prec.right` and
-`prec.left` respectively, which takes two arguments; the precendence
-number (higher is stronger) and the rule to apply it to.  So we can
-write:
-
-<!-- code with fixed associativity -->
-
-Now the grammar compiles without any issues.
-
-#### Statements
-Now that we've defined expressions (wasn't that easy?) we can breeze
-through the cases for defining statements:
-
 ```
-c := skip | x := a | c ; c | if b then c else c end | while b do c end
+Unresolved conflict for symbol sequence:
+
+  aexp  '+'  aexp  •  '+'  …
+
+Possible interpretations:
+
+  1:  (aexp  aexp  '+'  aexp)  •  '+'  …
+  2:  aexp  '+'  (aexp  aexp  •  '+'  aexp)
+
+Possible resolutions:
+
+  1:  Specify a left or right associativity in `aexp`
+  2:  Add a conflict for these rules: `aexp`
 ```
+
+Tree-sitter immediately tells that our rules are _ambiguous_, that is,
+the same sequence of tokens can have different parse trees.  We don't
+want to be ambiguous when writing code!  Let's make everything
+left-associative:
+
+```javascript
+program: $ => $.aexp,
+aexp: $ => choice(
+    /[0-9]+/,
+    /[a-z]+/,
+    prec.left(1,seq($.aexp,'+',$.aexp)),
+    prec.left(1,seq($.aexp,'-',$.aexp)),
+    prec.left(1,seq($.aexp,'*',$.aexp)),
+    seq('(',$.aexp,')'),
+),
+```
+
+However, something's not quite right when we parse `1*2-3*4`:
+
+<center><img src="/assets/parse.svg" alt="Parse tree for 1*2-3*4"/></center>
+
+It's being parsed as `(1*2-3)*4`, which is clearly a different
+interpretation!  We can fix this by specfiying `prec.left(2,...)` for
+`*`.  The resulting parse tree we get is what we want.
+
+<center><img src="/assets/parse-correct.svg" alt="Parse tree for 1*2-3*4"/></center>
+
+Note that in many real language specs, the precedence of binary
+operators is given, so it becomes pretty routine to figure out the
+associativity and precedence to specify.
+
+#### Boolean expressions and statements
+The grammars for boolean expressions and statements are similar, and
+can be found in the accompanying [repository](https://github.com/siraben/tree-sitter-imp/blob/master/grammar.js).
 
 ### Testing the grammar
 Phew, so now we have a grammar that tree-sitter compiles.  How do we
@@ -118,14 +167,47 @@ subcommand takes a path to a file and parses it with the current
 grammar, printing the parse tree to stdout.  The `test` subcommand
 runs a suite of tests defined in a very simple syntax:
 
-<!-- example of test file  -->
+```
+===
+skip statement
+===
+skip
+---
+
+(program
+  (stmt
+    (skip)))
+```
+
+The rows of equal signs denote the name of the test, followed by the
+program to parse, then a line of dashes followed by the expected parse
+tree.
 
 When we run `tree-sitter test`, we get a check if a test passed and a
 cross if it failed, complete with a diff showing the expected
 vs. actual parse tree:
 
-<!-- example of running tree-sitter test with incorrect parse -->
+<div><pre><code>tests:
+    ✗ <span style="color: #aa0000">skip</span>
+    ✓ <span style="color: #00aa00">assignment</span>
+    ✓ <span style="color: #00aa00">prec</span>
+    ✓ <span style="color: #00aa00">prog</span>
 
+1 failure:
+
+<span style="color: #00aa00">expected</span> / <span style="color: #aa0000">actual</span>
+
+  1. skip:
+
+    (program
+      (stmt
+<span style="color: #aa0000">        (seq
+          (stmt
+            (skip))
+          (stmt
+            (skip)))))</span>
+<span style="color: #00aa00">        (skip)))</span>
+</code></pre></div>
 
 ### Syntax highlighting!
 Believe it or not, that was pretty much all there is to writing a
@@ -141,22 +223,54 @@ The `tree-sitter highlight` command lets you generate [syntax
 highlighting](https://tree-sitter.github.io/tree-sitter/syntax-highlighting)
 of your source code and render it in your terminal or output to HTML.
 
-Here's the result of highlighting the following IMP program:
+Tree-sitter's [syntax
+highlighting](https://tree-sitter.github.io/tree-sitter/syntax-highlighting#queries)
+is based on queries.  Importantly, we need to assign highlight names
+to different nodes in the tree.  We only need the following 5 lines
+for this simple language.  The square brackets indicate alternations,
+that is, if any of the nodes in the tree match an item in the list,
+then assign the given capture name (prefixed with `@`) to it.
 
-<!-- IMP program highlighted -->
+```scheme
+[ "while" "end" "if" "then" "else" "do" ] @keyword
+[ "*" "+" "-" "=" ":=" "~" ] @operator
+(comment) @comment
+(num) @number
+(id) @variable.builtin
+```
 
-And for a more realistic example, here's two images showing highlights
-of [Formula](https://github.com/VUISIS/formula-dotnet) code, can you
-guess which one is produced by tree-sitter?
+Here's an Imp program that computes factorial of `x` and places the
+result in `y`.
 
-<!-- formula example -->
+```
+// Compute factorial
+z := x;
+y := 1;
+while ~(z = 0) do
+  y := y * z;
+  z := z - 1;
+end
+```
+
+And here is what `tree-sitter highlight --html` gives
+
+<div><pre><code><span style='font-style: italic;color: #8a8a8a'>// Compute factorial</span>
+<span style='font-weight: bold;'>z</span> <span style='font-weight: bold;color: #4e4e4e'>:=</span> <span style='font-weight: bold;'>x</span>;
+<span style='font-weight: bold;'>y</span> <span style='font-weight: bold;color: #4e4e4e'>:=</span> <span style='font-weight: bold;color: #875f00'>1</span>;
+<span style='color: #5f00d7'>while</span> <span style='font-weight: bold;color: #4e4e4e'>~</span>(<span style='font-weight: bold;'>z</span> <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='font-weight: bold;color: #875f00'>0</span>) <span style='color: #5f00d7'>do</span>
+ <span style='font-weight: bold;'>y</span> <span style='font-weight: bold;color: #4e4e4e'>:=</span> <span style='font-weight: bold;'>y</span> <span style='font-weight: bold;color: #4e4e4e'>*</span> <span style='font-weight: bold;'>z</span>;
+ <span style='font-weight: bold;'>z</span> <span style='font-weight: bold;color: #4e4e4e'>:=</span> <span style='font-weight: bold;'>z</span> <span style='font-weight: bold;color: #4e4e4e'>-</span> <span style='font-weight: bold;color: #875f00'>1</span>;
+<span style='color: #5f00d7'>end</span></code></pre></div>
+
+Not bad!  Operators, keywords, numbers and identifiers are clearly
+highlighted, and the comment being grayed out and italicized makes the
+code more readable.
 
 ## Where to go from here?
 Creating a tree-sitter grammar is only the beginning.  Now that you
 have a fast, reliable way to generate syntax trees even in the
 presence of syntax errors, you can use this as a base to build other
 tools on.
-
 
 ### Editor integration
 - screenshot of emacs querying
