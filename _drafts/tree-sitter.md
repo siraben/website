@@ -58,7 +58,15 @@ is a simple imperative language often used as an illustrative example
 in PL theory.
 
 ### Setting up the project
-This is how to set up a tree-sitter project.r
+Check out the official [tree-sitter development
+guide](https://tree-sitter.github.io/tree-sitter/creating-parsers#getting-started).
+
+If you're using Nix, run `nix shell nixpkgs#tree-sitter
+nixpkgs#nodejs-16-x` to enter a shell with the necessary dependencies.
+
+Note that you don't need to have it set up to continue reading this
+post, since I'll provide the terminal output at appropriate points.
+
 ### Writing the grammar
 #### Expressions
 First we follow the grammar for expressions given in the chapter.
