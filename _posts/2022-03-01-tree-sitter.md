@@ -193,7 +193,8 @@ tree.
 
 When we run `tree-sitter test`, we get a check if a test passed and a
 cross if it failed, complete with a diff showing the expected
-vs. actual parse tree:
+vs. actual parse tree (to illustrate the error I replaced the example
+code with `skip; skip` instead):
 
 <div><pre><code>tests:
     ✗ <span style="color: #aa0000">skip</span>
@@ -301,6 +302,7 @@ patterns (or anti-patterns) in your programming language.  To see this
 in action for Imp, see my minimal example of [linting Imp with
 Rust](https://github.com/siraben/ts-lint-example).  More details in a
 future post!
+
 ## Final thoughts
 Parsing technology has come a long way since the birth of computer
 science almost a century ago (see [this excellent timeline of
