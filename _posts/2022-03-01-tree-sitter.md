@@ -283,15 +283,20 @@ tools on.  I'll briefly describe some of the topics below but they
 really deserve their own blog post at a later date.
 
 ### Editor integration
-![Highlighting in
-Emacs](/assets/emacs-querying.png)
+![Highlighting in Emacs](/assets/emacs-querying.png)
 
-Tree-sitter produces a dynamic library which can be loaded into
-editors such as Emacs, Atom and VS Code.  Using the extension
-mechanisms in each editor, you can build packages on top which can use
-the syntax tree for a variety of things, such as structural code navigation,
-querying the syntax tree for specific nodes (see screenshot), and of course
-syntax highlighting.
+Tree-sitter grammars compile to a dynamic library which can be loaded
+into editors such as Emacs, Atom and VS Code on any platform
+(including WebAssembly).  Using the extension mechanisms in each
+editor, you can build packages on top which can use the syntax tree
+for a variety of things, such as structural code navigation, querying
+the syntax tree for specific nodes (see screenshot), and of course
+syntax highlighting.  Here's an incomplete list of projects that use
+tree-sitter to enhance editing:
+
+- [tree-aware editing in Emacs](https://github.com/ethan-leba/tree-edit)
+- [incomplete IDE features in VS Code](https://github.com/microsoft/vscode-anycode)
+- [completion framework for Neovim](https://github.com/nvim-treesitter/completion-treesitter)
 
 ### Linters
 Tree-sitter has
