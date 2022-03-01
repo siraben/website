@@ -52,10 +52,25 @@ generated parser is written in C, and there are many
 to other programming languages, so you can programmatically walk the
 tree as well.
 
-## A tree-sitter grammar for IMP
-[IMP](https://softwarefoundations.cis.upenn.edu/lf-current/Imp.html)
+## A tree-sitter grammar for Imp
+[Imp](https://softwarefoundations.cis.upenn.edu/lf-current/Imp.html)
 is a simple imperative language often used as an illustrative example
-in PL theory.
+in PL theory.  It has arithmetic expressions, boolean expressions and
+different kinds of statements including sequencing, conditionals and
+while loops.
+
+Here's an Imp program that computes the factorial of `x` and places the
+result in `y`.
+
+```
+// Compute factorial
+z := x;
+y := 1;
+while ~(z = 0) do
+  y := y * z;
+  z := z - 1;
+end
+```
 
 ### Setting up the project
 Check out the official [tree-sitter development
@@ -248,20 +263,8 @@ then assign the given capture name (prefixed with `@`) to it.
 (id) @variable.builtin
 ```
 
-Here's an Imp program that computes factorial of `x` and places the
-result in `y`.
-
-```
-// Compute factorial
-z := x;
-y := 1;
-while ~(z = 0) do
-  y := y * z;
-  z := z - 1;
-end
-```
-
-And here is what `tree-sitter highlight --html` gives
+And here is what `tree-sitter highlight --html` on the factorial
+program gives
 
 <div><pre><code><span style='font-style: italic;color: #8a8a8a'>// Compute factorial</span>
 <span style='font-weight: bold;'>z</span> <span style='font-weight: bold;color: #4e4e4e'>:=</span> <span style='font-weight: bold;'>x</span>;
