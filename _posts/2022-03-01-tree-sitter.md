@@ -285,6 +285,14 @@ presence of syntax errors, you can use this as a base to build other
 tools on.  I'll briefly describe some of the topics below but they
 really deserve their own blog post at a later date.
 
+### More highlighting
+Syntax highlighting can become more informative semantically with
+tree-sitter.  That is, we can have the syntax highlighter color local
+variable names one color, global variables another, distinguish
+between field access and method access, and more.  Doing such nuanced
+highlighting using a regex-based highlighter is about as futile as
+trying to [parse HTML with regex](https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags).
+
 ### Editor integration
 ![Highlighting in Emacs](/assets/emacs-querying.png)
 
