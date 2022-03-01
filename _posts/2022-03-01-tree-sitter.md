@@ -4,8 +4,8 @@ title: How to write a tree-sitter grammar in an afternoon
 tags:
 - parsing
 - tree-sitter
+date: 2022-03-01 00:11 -0600
 ---
-
 Every passing decade, it seems as if the task of implementing a new
 programming language becomes easier.  Parser generators take the pain
 out of parsing, and can give us informative error messages.
