@@ -270,29 +270,38 @@ code more readable.
 Creating a tree-sitter grammar is only the beginning.  Now that you
 have a fast, reliable way to generate syntax trees even in the
 presence of syntax errors, you can use this as a base to build other
-tools on.
+tools on.  I'll briefly describe some of the topics below but they
+really deserve their own blog post at a later date.
 
 ### Editor integration
-- screenshot of emacs querying
-- highlighting in emacs
-- debugging parsers
+![Highlighting in
+Emacs](/assets/emacs-querying.png)
+
+Tree-sitter produces a dynamic library which can be loaded into
+editors such as Emacs, Atom and VS Code.  Using the extension
+mechanisms in each editor, you can build packages on top which can use
+the syntax tree for a variety of things, such as structural code navigation,
+querying the syntax tree for specific nodes (see screenshot), and of course
+syntax highlighting.
 
 ### Linters
-Once you have a syntax tree, you can write a linter in any language
-with a binding to tree-sitter!  Think of all the things you can
-recommend to people writing code in your language.  Maybe there's an
-unused variable, or style guide for naming identifers, redundant
-conditional expressions and so on.  I have yet to do this myself, so
-stay tuned for a future blog post!
-
-### Highlighting redundant statements
-
-```scheme
-;; Redundant assignment
-((asgn name: _ @left _ @right)
- (#eq? @left @right))
-
-;; Redundant if
-(if condition: _ @c consequent: _ @l alternative: _ @r
- (#eq? @l @r)) @redundant_if
-```
+Tree-sitter has
+[bindings](https://tree-sitter.github.io/tree-sitter/#language-bindings)
+in several languages.  You can use this information and tree-sitter's
+query language to traverse the syntax tree looking for specific
+patterns (or anti-patterns) in your programming language.  To see this
+in action for Imp, see my minimal example of [linting Imp with
+Rust](https://github.com/siraben/ts-lint-example).  More details in a
+future post!
+## Final thoughts
+Parsing technology has come a long way since the birth of computer
+science almost a century ago (see [this excellent timeline of
+parsing](https://jeffreykegler.github.io/personal/timeline_v3)).
+We've gone from being unable to handle recursive expressions and
+precedence to LALR parser generators and now GLR and fast incremental
+parsing with tree-sitter.  It stands to reason that the tools millions
+of developers use every day to look at their code should take
+advantage of such developments.  We can do better than line-oriented
+editing or hacky regexps to transform and highlight our code.  The
+future is structural, and perhaps tree-sitter will play a big role in
+it!
