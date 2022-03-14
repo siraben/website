@@ -17,9 +17,9 @@ languages such as LLVM give us reasonable performance to even the
 simplest languages.
 
 Say you have just created a new language leveraging the latest and
-greatest technologies in PL land, what should you turn your sights to
-next, if you want people to actually adopt and use it?  I'd argue that
-it should be writing a
+greatest technologies in programming language land, what should you
+turn your sights to next, if you want people to actually adopt and use
+it?  I'd argue that it should be writing a
 [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar.
 Before I elaborate what tree-sitter is, here's what you'll be able to
 achieve much more easily:
@@ -55,9 +55,9 @@ tree as well.
 ## A tree-sitter grammar for Imp
 [Imp](https://softwarefoundations.cis.upenn.edu/lf-current/Imp.html)
 is a simple imperative language often used as an illustrative example
-in PL theory.  It has arithmetic expressions, boolean expressions and
-different kinds of statements including sequencing, conditionals and
-while loops.
+in programming language theory.  It has arithmetic expressions,
+boolean expressions and different kinds of statements including
+sequencing, conditionals and while loops.
 
 Here's an Imp program that computes the factorial of `x` and places the
 result in `y`.
@@ -114,7 +114,7 @@ id: $ => /[a-z]+/,
 nat: $ => /[0-9]+/,
 ```
 
-This corresponds to the tree-sitter grammar
+The grammar for arithmetic expressions can easily be translated:
 
 ```javascript
 program: $ => $.aexp,
