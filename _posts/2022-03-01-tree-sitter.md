@@ -6,6 +6,10 @@ tags:
 - tree-sitter
 date: 2022-03-01 11:21 -0600
 ---
+
+_This article was discussed on [Hacker
+News](https://news.ycombinator.com/item?id=30661127)._
+
 Every passing decade, it seems as if the task of implementing a new
 programming language becomes easier.  Parser generators take the pain
 out of parsing, and can give us informative error messages.
