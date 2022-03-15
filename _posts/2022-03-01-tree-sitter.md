@@ -168,7 +168,7 @@ However, something's not quite right when we parse `1*2-3*4`:
 
 <center><img src="/assets/parse.svg" alt="Parse tree for 1*2-3*4"/></center>
 
-It's being parsed as `(1*2-3)*4`, which is clearly a different
+It's being parsed as `((1*2)-3)*4`, which is clearly a different
 interpretation!  We can fix this by specfiying `prec.left(2,...)` for
 `*`.  The resulting parse tree we get is what we want.
 
