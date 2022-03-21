@@ -18,10 +18,13 @@ and can be found [here](https://github.com/siraben/ts-lint-example).
 Recall that tree-sitter is an _incremental_ parser generator.  That
 is, you give it a description of the grammar of your programming
 language and it spits out a parser in C that creates a syntax tree
-based on the rules you specified.  What's notable about it is that
-this works even in the presence of syntax errors, and it being
-incremental means the parser is fast enough to reparse the file on
-every keystroke, only changing the parts of the tree as needed.
+based on the rules you specified.  What's notable about tree sitter
+is that it is [resilient in the presence of syntax errors][tree-sitter-errors],
+and it being incremental means the parser is fast enough to
+reparse the file on every keystroke, only changing the parts of the
+tree as needed.
+
+[tree-sitter-errors]: https://news.ycombinator.com/item?id=24494756
 
 Specifically, we'll write a program that suggests simplification of
 assignments and some conditional constructs.  First I'll describe the
@@ -35,7 +38,7 @@ that let you work with tree-sitter parsers using the respective
 languages' FFI.  I've used only two to date, the Rust and the
 JavaScript bindings, and from my brief experience, the JavaScript
 bindings are much more usable.  When using the Rust bindings the
-lifetime and mutability errors make abstraction more difficult,
+lifetime and mutability restrictions make abstraction more difficult,
 especially for a non-critical program such as a linter.
 
 ## Tree-sitter queries
@@ -43,7 +46,7 @@ Tree-stter has a builtin [query
 language](https://tree-sitter.github.io/tree-sitter/using-parsers#pattern-matching-with-queries)
 that lets you write queries to match parts of the AST of interest.
 Think of it as pattern matching, but you don't need to handle every
-recursive case of every syntactical construct.
+case of a syntactical construct.
 
 ### Query syntax
 Tree-sitter queries are written as a series of one or more patterns in
@@ -69,7 +72,7 @@ Let's match all expressions involving binary operators.
 <div><pre><code><span>def factorial(n):</span>
 <span>  return 1 if n == 0 else <span style="color: blue;">(</span><span style="color: blue;">n * (</span><span style="color: blue;">1 * 1</span><span style="color: blue;">)</span><span style="color: blue;">) * factorial(</span><span style="color: blue;">n - 1</span><span style="color: blue;">)</span></span></code></pre></div>
 
-Tree-sitter lets us underspecify what the children should be.  So we
+Tree-sitter lets us specify what the children should be.  So we
 can match all binary expressions involving at least one integer:
 
 ```scheme
@@ -143,8 +146,8 @@ in `index.js` then we can call our linter by running `npm run lint <file>`.
 
 ### Imports and setup
 Nothing fancy here, just the Parser class from the tree-sitter library
-and our language definition `Imp`, and a library to read from the
-filesystem.
+and our language definition `Imp` (discussed in my last blog post), and
+a library to read from the filesystem.
 
 ```javascript
 import Parser from "tree-sitter";
@@ -310,7 +313,7 @@ Passing `tree`, `redundantQuery` and `"redundantAsgn"` to
 ]
 ```
 
-And of course, you can process these objects however you like.  Note
+Now you can process these objects however you like.  Note
 that tree-sitter uses zero-based indexing for the rows and columns,
 and you might want to offset it by one so users can locate it in their
 text editor.
