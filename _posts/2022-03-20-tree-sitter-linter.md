@@ -120,7 +120,13 @@ highlighted in blue.  The underscore `_` lets us match any node.
 
 ## Writing the linter
 Now we have the basic parts out of the way, we can get to writing a
-linter!  We can start with a basic `package.json`:
+linter!  Instead of Python, we'll continue working with Imp.  Note
+that it's easy to adapt this linter for any language with a
+tree-sitter grammar.  Imp also has a much simpler semantics than
+Python so we can just focus on "obviously correct" lints rather than
+worry about suggestions changing program behavior.
+
+We can start with a basic `package.json`:
 
 ```json
 {
