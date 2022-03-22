@@ -322,7 +322,28 @@ Passing `tree`, `redundantQuery` and `"redundantAsgn"` to
 Now you can process these objects however you like.  Note
 that tree-sitter uses zero-based indexing for the rows and columns,
 and you might want to offset it by one so users can locate it in their
-text editor.
+text editor.  Here's a simple approach:
+
+```javascript
+// Lint the tree with a given message, query and match name
+function lint(tree, msg, query, name) {
+  console.log(msg);
+  console.log(capturesByName(tree, query, name));
+}
+
+lint(tree, "Redundant assignments:", redundantQuery, "redundantAsgn");
+```
+
+We get the output:
+
+```
+Redundant assignments:
+[
+  { text: 'y := y', row: 2, column: 0 },
+  { text: 'x := x', row: 6, column: 2 },
+  { text: 'x := x', row: 8, column: 0 }
+]
+```
 
 As a bonus, we can reuse our existing code for new queries!  Here's a
 couple:
