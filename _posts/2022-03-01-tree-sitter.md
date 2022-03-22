@@ -319,9 +319,9 @@ Tree-sitter has
 in several languages.  You can use this information and tree-sitter's
 query language to traverse the syntax tree looking for specific
 patterns (or anti-patterns) in your programming language.  To see this
-in action for Imp, see my minimal example of [linting Imp with
-Rust](https://github.com/siraben/ts-lint-example).  More details in a
-future post!
+in action for Imp, see my minimal example of [linting Imp with the
+JavaScript bindings](https://github.com/siraben/ts-lint-example).
+More details in a future post!
 
 ## Final thoughts
 Parsing technology has come a long way since the birth of computer
