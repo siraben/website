@@ -5,7 +5,7 @@ tags:
 - parsing
 - tree-sitter
 - linting
-date: 2022-03-20 20:58 -0500
+date: 2022-03-22 11:35 -0500
 ---
 This is a continuation of my last post on [how to write a tree-sitter
 grammar in an
