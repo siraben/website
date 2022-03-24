@@ -18,11 +18,11 @@ and can be found [here](https://github.com/siraben/ts-lint-example).
 Recall that tree-sitter is an _incremental_ parser generator.  That
 is, you give it a description of the grammar of your programming
 language and it spits out a parser in C that creates a syntax tree
-based on the rules you specified.  What's notable about tree sitter
-is that it is [resilient in the presence of syntax errors][tree-sitter-errors],
-and it being incremental means the parser is fast enough to
-reparse the file on every keystroke, only changing the parts of the
-tree as needed.
+based on the rules you specified.  What's notable about tree sitter is
+that it is [resilient in the presence of syntax
+errors][tree-sitter-errors], and it being incremental means the parser
+is fast enough to reparse the file on every keystroke, only changing
+the parts of the tree as needed.
 
 [tree-sitter-errors]: https://news.ycombinator.com/item?id=24494756
 
@@ -301,7 +301,7 @@ function capturesByName(tree, query, name) {
   return formatCaptures(
     tree,
     query.captures(tree.rootNode).filter((x) => x.name == name)
-  ).map(function (x) {
+  ).map((x) => {
     delete x.name;
     return x;
   });
@@ -394,8 +394,15 @@ resulting AST is annotated with locations and can be easily
 pattern-matched over with queries.
 
 Should we throw tree-sitter at every problem involving parsing?  No!
-There are certainly some areas such as compilation where we need
-syntax trees without error nodes, and sometimes the incremental
-parsing is not necessary.  However, I think that tree-sitter gives us
-new capabilities to take on problems that previously would have been
-intractable.
+There are certainly some areas where we need syntax trees without
+error nodes, and sometimes the incremental parsing is not necessary.
+For instance, if we're working with a build farm, we don't want to
+build package definitions with syntax errors!
+
+Beyond linting, tree-sitter also has found applications in
+GitHub's [search-based code navigation](gh-code-search) which also
+makes use of the query language to [annotate the AST with
+tags](ast-tags).
+
+[gh-code-search]: https://dl.acm.org/doi/pdf/10.1145/3487019.3487022
+[ast-tags]: https://tree-sitter.github.io/tree-sitter/code-navigation-systems
