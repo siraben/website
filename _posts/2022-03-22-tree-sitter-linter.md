@@ -401,9 +401,9 @@ For instance, if we're working with a build farm, we don't want to
 build package definitions with syntax errors!
 
 Beyond linting, tree-sitter also has found applications in
-GitHub's [search-based code navigation](gh-code-search) which also
+GitHub's [search-based code navigation][gh-code-search] which also
 makes use of the query language to [annotate the AST with
-tags](ast-tags).
+tags][ast-tags].
 
 [gh-code-search]: https://dl.acm.org/doi/pdf/10.1145/3487019.3487022
 [ast-tags]: https://tree-sitter.github.io/tree-sitter/code-navigation-systems
