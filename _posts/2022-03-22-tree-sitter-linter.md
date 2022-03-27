@@ -36,7 +36,7 @@ Ready?  Set?  Go!
 **Note:** There are many [language
 bindings](https://tree-sitter.github.io/tree-sitter/#language-bindings)
 that let you work with tree-sitter parsers using the respective
-languages' FFI.  I've used only two to date, the Rust and the
+language's FFI.  I've used only two to date, the Rust and the
 JavaScript bindings, and from my brief experience, the JavaScript
 bindings are much more usable.  When using the Rust bindings the
 lifetime and mutability restrictions make abstraction more difficult,
