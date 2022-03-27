@@ -30,6 +30,7 @@ Specifically, we'll write a program that suggests simplification of
 assignments and some conditional constructs.  First I'll describe the
 tree-sitter query language with some examples, then show how a little
 bit of JavaScript can let us manipulate the results programmatically.
+You can get the code in this post [here](https://github.com/siraben/ts-lint-example).
 Ready?  Set?  Go!
 
 **Note:** There are many [language
