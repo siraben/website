@@ -400,7 +400,7 @@ error nodes, and sometimes the incremental parsing is not necessary.
 For instance, if we're working with a build farm, we don't want to
 build package definitions with syntax errors!
 
-Beyond linting, tree-sitter also has found applications in
+Beyond linting, tree-sitter has also found applications in
 GitHub's [search-based code navigation][gh-code-search] which also
 makes use of the query language to [annotate the AST with
 tags][ast-tags].
