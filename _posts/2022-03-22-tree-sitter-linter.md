@@ -8,7 +8,7 @@ tags:
 date: 2022-03-22 11:35 -0500
 ---
 
-This article was discussed on [Hacker News](https://news.ycombinator.com/item?id=30822544).
+_This article was discussed on [Hacker News](https://news.ycombinator.com/item?id=30822544)._
 
 This is a continuation of my last post on [how to write a tree-sitter
 grammar in an
