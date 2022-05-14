@@ -337,7 +337,7 @@ Definition nat_ind2 :
    P 0 ->
    P 1 ->
    (forall n : nat, P n -> P (S (S n))) ->
-   forall n : nat , P n :=
+   forall n : nat, P n :=
       fun P => fun P0 => fun P1 => fun PSS =>
          fix f (n:nat) := match n with
                             0 => P0
