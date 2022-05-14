@@ -8,7 +8,8 @@ tags:
 hasmath: true
 ---
 
-Coq code for this post available [here](https://gist.github.com/siraben/19b2c77b105f02799ca29c03e7790d6b).
+Coq code for this post available [here](https://gist.github.com/siraben/19b2c77b105f02799ca29c03e7790d6b). Note that
+the proof scripts are meant to be stepped through interactively in Coq.
 
 After having gone through most of the first 3 books in [Software
 Foundations](https://softwarefoundations.cis.upenn.edu/), and proving
