@@ -179,7 +179,7 @@ Definition injective {A B} (f : A -> B) :=
 Definition injective' {A B} (f : A -> B) :=
   forall a' a'', a' <> a'' -> f a' <> f a''.
 
-(* injective generalizes injective' *)
+(* injective implies injective' *)
 Theorem injective_injective' : forall {A B} (f : A -> B),
   injective f -> injective' f.
 Proof. cbv; auto. Qed.
