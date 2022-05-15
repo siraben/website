@@ -68,7 +68,7 @@ GEM
     unicode-display_width (1.8.0)
 
 PLATFORMS
-  arm64-darwin-20
+  arm64-darwin-21
 
 DEPENDENCIES
   jekyll (~> 4.2.1)
