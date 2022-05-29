@@ -39,7 +39,9 @@ But this blog post is not about monad transformers, it's about another
 idea that's less well-known, _free monads_, a neat way to combine
 effects with less boilerplate, and has been applied in works such as
 [Extensible Effects](http://okmij.org/ftp/Haskell/extensible/more.pdf)
-and [Polysemy](https://github.com/polysemy-research/polysemy).
+and [Polysemy](https://github.com/polysemy-research/polysemy).  Free
+monads are relatively easy to construct and explain and can help set
+the ground for fancier, more efficient effect systems.
 
 This blog post assumes a working knowledge of Haskell, typeclasses,
 and some category theory.
