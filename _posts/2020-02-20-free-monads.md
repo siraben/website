@@ -35,6 +35,17 @@ ticke n = do y <- recall -- read global state
                else return y
 ```
 
+The corresponding imperative code might be:
+
+```javascript
+function ticke() {
+  const y = getState();
+  incr(5);
+  const z = getState();
+  if (z > n) { throw "too big"; } else { return y; }
+}
+```
+
 But this blog post is not about monad transformers, it's about another
 idea that's less well-known, _free monads_, a neat way to combine
 effects with less boilerplate, and has been applied in works such as
