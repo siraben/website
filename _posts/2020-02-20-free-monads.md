@@ -357,6 +357,7 @@ about no instances for `(Exc String :<: Void)`.  It's really a type
 inference failure, because Haskell could not infer the instance at the
 call-site (this is a problem effect libraries attempt to address).
 
+### Transactional memory for free
 We can also show that the order in which effects are handled makes a
 difference.  For instance, in the first line below we handle the
 exception first then the state after (so the state persists even
@@ -370,6 +371,10 @@ discarded when the exception is thrown.
 λ> ticke 1 & efRunCalc (Mem 0) & efRunExcString & efRun
 Left "too big"
 ```
+
+Think of the latter case as a sort of "transactional" style whereby an
+action must fully succeed or fail and the intermediate state at the
+point of failure is impossible to access.
 
 For our final example, we generalize the state to an arbitrary type
 `s`, and write an imperative program to sum the first `n` numbers.
