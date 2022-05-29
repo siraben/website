@@ -27,11 +27,11 @@ other words, we want to write code like this, resembling an impure
 language.
 
 ```haskell
-ticke n = do y <- recall
-             incr 5
+ticke n = do y <- recall -- read global state
+             incr 5 -- modify global state
              z <- recall
              if z > n
-               then raise "too big"
+               then raise "too big" -- throw exception
                else return y
 ```
 
@@ -319,7 +319,7 @@ interpret effects, we handle them one by one.
 
 ## Adding Exceptions
 Suppose now we want to add a `raise` command to our calculator, the
-`Exc` effect.  This is done separately.  A pattern raises for making
+`Exc` effect.  This is done separately.  A pattern arises for making
 new effects, we define our type, our user-facing functions and an
 interpreter for our effect.
 
