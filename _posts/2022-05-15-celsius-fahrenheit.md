@@ -1,6 +1,6 @@
 ---
 layout: post
-title: A fast, accurate mental method to convert between ℃ and ℉
+title: How to convert quickly between ℃ and ℉
 hasmath: true
 date: 2022-06-22 21:48 -0700
 ---
@@ -9,36 +9,32 @@ habits in our speech can greatly influence the extent to which other
 people make sense of it.  But even when you speak the same language,
 even a topic as simple as the weather can already bring unnecessary
 friction to the conversation if the speakers are using incompatible
-units.  Or maybe I'm just coming up with an arbitrary reason to
-justify this party trick.  In any case, I describe a mental heuristic
-that gets you within 0.25 degrees Celsius for any temperature in
-Fahrenheit, and prove the error bound.  For the other direction, the
-error in converting a temperature in Celsius to Fahrenheit is at most
-0.5℉.
+units (_cough_ _cough_).  Or maybe I'm just coming up with an
+arbitrary reason to justify this party trick.  In any case, I describe
+a mental heuristic that gets you within 0.25 degrees Celsius for any
+temperature in Fahrenheit, and prove the error bound.  For the other
+direction, the error in converting a temperature in Celsius to
+Fahrenheit is at most 0.5℉.
 
-First of all, this method is _incremental_.  That is, you get an
-immediate sense of the rough temperature in Celsius for a given
-temperature in Fahrenheit, and if you do a bit more mental
-calculation, then you achieve this error of 0.25.  Fortunately, the
-extra work you have to do is just diving a number by 2, and the
-largest such number you ever have to divide in half is 5.
+With this method, you get an immediate sense of the rough temperature
+in Celsius for a given temperature in Fahrenheit, and if you calculate
+a bit more, then the error is 0.25℃.
 
 ## Anchor points
-I memorize the following table.  While it may seem a bit daunting at
-first, it actually is very simple.  Fahrenheit and Celsius have a
-linear relationship, so a difference of 9℉ corresponds to a difference
-of 5℃.  If you memorize just one of these numbers (I recommend 50℉
-corresponding to 10℃) then you can generate the rest on the go.
+I memorize the following table.  I recommend remembering that 50℉
+corresponds to 10℃. Since Fahrenheit and Celsius have a linear
+relationship, a difference of 9℉ corresponds to a difference of 5℃.
+You can get the other numbers by adding as needed.
 
 | Fahrenheit | Celsius |
 |------------|---------|
-| **32**     | **0**   |
+| 32         | 0       |
 | 41         | 5       |
 | **50**     | **10**  |
 | 59         | 15      |
-| **68**     | **20**  |
+| 68         | 20      |
 | 77         | 25      |
-| **86**     | **30**  |
+| 86         | 30      |
 
     
 I highlighted the easiest to memorize points.  So, if you ever
@@ -86,20 +82,20 @@ def my_conv(given):
 If have $$T_F$$, then the error bound for converting to Celsius is at
 most 0.25℃.  The calculation is straightforward.  First observe since
 the memorized intervals occur every 9℉, the difference is at most
-4.5℉.  Then the conversion is approximated to 1/2℃/℉, so we calculate:
+9/2 ℉.  Then the conversion is approximated to 1/2 ℃/℉, so we calculate:
 
 $$
-4.5(5/9-1/2) = 0.25℃
+9/2(5/9-1/2) = 0.25℃
 $$
 
 ## Final thoughts and when not to use it
-Thus we have a method which is:
+That's pretty much it.  In summary the conversion is:
 
 * Accurate to within 0.25℃ for any temperature in Fahrenheit, or 0.5℉
   for any temperature in Celsius
 * Simply calculable; you never need to divide by more than 2.
-* Immediate feedback; at every step you get a temperature which is
-  roughly the temperature in Celsius.
+* Gives immediate feedback; at every step you get a temperature which
+  is roughly the temperature in Celsius.
 
 If you're converting temperature in the thousands of degrees and
 higher, you're better off approximating it by multiplying by 2 to go
