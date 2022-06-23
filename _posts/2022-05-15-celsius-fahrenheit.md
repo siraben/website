@@ -2,7 +2,7 @@
 layout: post
 title: A fast, accurate mental method to convert between ℃ and ℉
 hasmath: true
-date: 2022-05-15 09:04 -0700
+date: 2022-06-22 21:48 -0700
 ---
 As a speaker of multiple languages, I'm often aware of how inherent
 habits in our speech can greatly influence the extent to which other
@@ -83,14 +83,13 @@ def my_conv(given):
 ```
 
 ## Proof of error bound
-We show that if we have $$T_F$$, then the error bound for converting
-to Celsius is at most 0.25℃.  The calculation is straightforward.
-First we observe since the memorized intervals occur every 9℉, the
-difference is at most 4.5℉.  Then the conversion is approximated to
-1/2℃/℉, so we calculate:
+If have $$T_F$$, then the error bound for converting to Celsius is at
+most 0.25℃.  The calculation is straightforward.  First observe since
+the memorized intervals occur every 9℉, the difference is at most
+4.5℉.  Then the conversion is approximated to 1/2℃/℉, so we calculate:
 
 $$
-4.5(5/9-1/2) = 0.25
+4.5(5/9-1/2) = 0.25℃
 $$
 
 ## Final thoughts and when not to use it
