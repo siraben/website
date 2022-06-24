@@ -9,5 +9,5 @@ everything from hardware and assembly programming to functional
 programming and formal verification.
 
 This site was created with [Jekyll](https://jekyllrb.com/) and
-deployed using [Netlify](https://www.netlify.com/).
-
+deployed using [Netlify](https://www.netlify.com/). View the
+source [here](https://github.com/siraben/siraben.github.io).
