@@ -11,10 +11,10 @@ even a topic as simple as the weather can already bring unnecessary
 friction to the conversation if the speakers are using incompatible
 units (_cough_ _cough_).  Or maybe I'm just coming up with an
 arbitrary reason to justify this party trick.  In any case, I describe
-a mental heuristic that gets you within 0.25 degrees Celsius for any
-temperature in Fahrenheit, and prove the error bound.  For the other
-direction, the error in converting a temperature in Celsius to
-Fahrenheit is at most 0.5℉.
+a mental heuristic that gets you within 0.25℃ for any temperature in
+Fahrenheit, and prove the error bound.  For the other direction, the
+error in converting a temperature in Celsius to Fahrenheit is at most
+0.5℉.
 
 With this method, you get an immediate sense of the rough temperature
 in Celsius for a given temperature in Fahrenheit, and if you calculate
@@ -36,19 +36,25 @@ You can get the other numbers by adding as needed.
 | 77         | 25      |
 | 86         | 30      |
 
+## Steps to perform the conversion
 
-Obviously, if you encounter any of the temperatures in the table, you
-have the exact value in the other unit.  So far so good, but this
-isn't quite enough.  To approximate the temperature in Celsius even
-better, I choose the nearest anchor point in Fahrenheit and
-interpolate between that point and our given temperature.  For
-instance, if I am given 72℉, then the closest memorized point is 68℉,
-which corresponds to 20℃.  Then I take half of the difference and add
-it to the temperature in Celsius, thus we get 22℃ (the true
-temperature is in fact 22.22℃).
+Given a temperature $$T_F$$ and the table,
+
+1. Look up the nearest Farenheit value $$v$$ in the table.  If it
+   exists then you are done and the answer is $$T[v]$$.
+2. Otherwise, compute $$\frac{T_F-T[v]}{2}$$, let the result
+   be $$d$$
+3. The approximation is given by $$T[v]+d$$
+
+Here's an example.
+
+1. Suppose we are given 72℉.  The nearest value in the table is 68℉,
+   corresponding to 20℃.
+2. Now we compute $$\frac{72-68}{2}=2$$
+3. Now we add the two results to get 22℃.
 
 ## Code
-I can render the above words into code so it's unambiguous what I
+I can render the above steps into code so it's unambiguous what I
 actually mean.  Note that in the code I didn't use a lookup table but
 instead some arithmetic to find the closest anchor point.  Obviously
 in practice it'll be memorized.
@@ -78,7 +84,7 @@ $$
 That's pretty much it.  In summary the conversion is:
 
 * Accurate to within 0.25℃ for any temperature in Fahrenheit, or 0.5℉
-  for any temperature in Celsius
+  for any temperature in Celsius.
 * Simply calculable; you never need to divide by more than 2.
 * Gives immediate feedback; at every step you get a temperature which
   is roughly the temperature in Celsius.
