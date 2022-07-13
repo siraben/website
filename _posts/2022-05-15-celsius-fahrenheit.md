@@ -1,6 +1,6 @@
 ---
 layout: post
-title: How to convert quickly between ℃ and ℉
+title: My method for fast mental conversion between ℃ and ℉
 hasmath: true
 date: 2022-06-22 21:48 -0700
 ---
