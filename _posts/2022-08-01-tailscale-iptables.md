@@ -131,11 +131,12 @@ problems whatsoever.  I pinged people through the connection and
 latency was acceptable (77 ms for someone in New York).
 
 ## References
-[Xe's Tailscale on NixOS post](https://tailscale.com/blog/nixos-minecraft/)
-inspired me to write this, however my requirements were different.  I
-did not want to require my friends to install Tailscale to play on my
-server, and wanted to leverage the existing hardware I had access to,
-essentially letting me use my server as a crappy router.
+[Xe's post on Tailscale, NixOS and
+Minecraft](https://tailscale.com/blog/nixos-minecraft/) inspired me to
+write this, however my requirements were different.  I did not want to
+require my friends to install Tailscale to play on my server, and
+wanted to leverage the existing hardware I had access to, essentially
+letting me use my server as a crappy router.
 
 Various `iptables` tutorials and resources online helped me make sense
 of the terminology, commands and flags.
