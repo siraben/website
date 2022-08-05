@@ -90,17 +90,23 @@ the list of open TCP ports for my server:
 ```
 
 ### Creating the rule
-Now we can go ahead and just run the two following commands to set up
-the rule.  The first command adds a rule to the `PREROUTING` chain
-which is where packets arrive before being processed.  We basically
-immediately forward the packet over to the laptop pointed to by the
-IP address given by Tailscale.  The second command essentially
-lets the source IP of the packet remain the same so the server just
-acts as a router.
+Now we can go ahead add the following commands to our firewall setup.
+Let `dest_ip` be the Tailscale IP of the server.  The first command
+adds a rule to the `PREROUTING` chain which is where packets arrive
+before being processed.  We basically immediately forward the packet
+over to the laptop pointed to by the IP address given by Tailscale.
+The second command essentially lets the source IP of the packet remain
+the same so the server just acts as a router.
 
-```ShellSession
-$ sudo iptables -t nat -A PREROUTING -p tcp --dport 25565 -j DNAT --to-destination $LAPTOP_TS_IP:25565
-$ sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+```nix
+# combine with the rest of your configuration
+{
+  networking.firewall.extraCommands = ''
+   IPTABLES=${pkgs.iptables}/bin/iptables
+   "$IPTABLES" -t nat -A PREROUTING -p tcp --dport 25565 -j DNAT --to-destination ${dest_ip}:25565
+   "$IPTABLES" -t nat -A POSTROUTING -j MASQUERADE
+  '';
+}
 ```
 
 Now we have the following setup:
