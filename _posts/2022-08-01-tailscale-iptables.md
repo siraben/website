@@ -116,8 +116,9 @@ Now we have the following setup:
 <p><img src="/assets/tailscale-iptable.svg" alt="Graphic"></p>
 </center>
 
-And checking again in Minecraft, this time using the public server IP,
-it all works as expected!
+Now we rebuild the server configuration, and checking again in
+Minecraft, this time using the public server IP, it all works as
+expected!
 
 ### Final touches: a DNS record
 For the final touches *\*chef's kiss\**, adding an A record gave me
