@@ -20,6 +20,10 @@ The answer was yes---and I was surprised at how easy it all was.  As a
 plus, the server is very playable and the latency was better than
 trying out random "free hosting" services.
 
+<center>
+<p><img src="/assets/tailscale-iptable.svg" alt="Graphic"></p>
+</center>
+
 ## Halfway with Tailscale
 I already use Tailscale on all my devices, so of course when I spin up
 a Minecraft server instance on one device I can immediately connect to
