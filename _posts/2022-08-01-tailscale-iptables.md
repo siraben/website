@@ -16,7 +16,9 @@ I have a spare beefy laptop that can easily handle the load, but
 port-forwarding is not possible.  Both the server and the laptop are
 on my [Tailscale](https://tailscale.com) network.  Could I somehow
 leverage all of this to spin up a Minecraft server with a public IP?
-The answer was yes---and I was surprised at how easy it all was.
+The answer was yes---and I was surprised at how easy it all was.  As a
+plus, the server is very playable and the latency was better than
+trying out random "free hosting" services.
 
 ## Halfway with Tailscale
 I already use Tailscale on all my devices, so of course when I spin up
