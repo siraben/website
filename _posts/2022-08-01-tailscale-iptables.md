@@ -128,7 +128,7 @@ As far as performance goes, it's pretty good!  The proxy server is on the
 East coast and even though the Minecraft server is on the West coast,
 having played on it for several hours today, my friends and I had no
 problems whatsoever.  I pinged people through the connection and
-latency was acceptable.
+latency was acceptable (77 ms for someone in New York).
 
 ## References
 [Xe's Tailscale on NixOS post](https://tailscale.com/blog/nixos-minecraft/)
