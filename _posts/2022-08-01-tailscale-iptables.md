@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Using Tailscale and iptables to roll your own port forwarding"
-subtitle: "Or, how to host a Minecraft server without getting more hardware"
+subtitle: "Or, hosting a Minecraft server without getting more hardware"
 tags:
 - network
 - tailscale
