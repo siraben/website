@@ -64,7 +64,7 @@ Starting net.minecraft.server.Main
 [22:18:57] [Server thread/INFO]: Done (2.163s)! For help, type "help"
 ```
 
-And let's check if Minecraft can see it...
+And let's check if Minecraft can see it if I put in the Tailscale IP...
 
 <center><p><img src="/assets/server-entry.png"></p></center>
 
