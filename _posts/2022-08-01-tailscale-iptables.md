@@ -103,9 +103,9 @@ the same so the server just acts as a router.
 # combine with the rest of your configuration
 {
   networking.firewall.extraCommands = ''
-   IPTABLES=${pkgs.iptables}/bin/iptables
-   "$IPTABLES" -t nat -A PREROUTING -p tcp --dport 25565 -j DNAT --to-destination ${dest_ip}:25565
-   "$IPTABLES" -t nat -A POSTROUTING -j MASQUERADE
+    IPTABLES=${pkgs.iptables}/bin/iptables
+    "$IPTABLES" -t nat -A PREROUTING -p tcp --dport 25565 -j DNAT --to-destination ${dest_ip}:25565
+    "$IPTABLES" -t nat -A POSTROUTING -j MASQUERADE
   '';
 }
 ```
