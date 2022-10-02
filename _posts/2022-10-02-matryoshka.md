@@ -87,10 +87,11 @@ for i in range(0, len(d), 8):
 print(p)
 ```
 
-The Japanese sentence あなたと私でランデブー？(you and I rendezvous?)
-also provided a sanity check that the code was executing correctly.
-Being somewhat of a hobby linguist, I noticed immediately that the
-character `？` was the [FULLWIDTH QUESTION MARK
+The Japanese sentence あなたと私でランデブー？[(You and me,
+rendezvous?)](https://www.youtube.com/watch?v=HOz-9FzIDf0) also
+provided a sanity check that the code was executing correctly.  Being
+somewhat of a hobby linguist, I noticed immediately that the character
+`？` was the [FULLWIDTH QUESTION MARK
 character](https://en.wikipedia.org/wiki/Question_mark#Fullwidth_question_mark_in_East_Asian_languages)
 which is used in East Asian languages.  This was important in making
 sure that the outputs matched exactly.
