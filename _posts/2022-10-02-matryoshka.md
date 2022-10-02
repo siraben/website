@@ -238,7 +238,7 @@ doesn't show up on a spectrogram however:
 By now half of our team was listening to parts of the audio file and
 messing around with various audio settings such as equalization and
 noise reduction.  To be clear, none of us are audio engineers by
-training so this was a do-what-feels-right kid of deal.  Eventually,
+training so this was a do-what-feels-right kind of deal.  Eventually,
 we found a website that did noise reduction and put the audio file
 through it *5* times, then, to our continual surprise (which was
 routine at this point), this is what we saw and heard:
