@@ -249,7 +249,8 @@ routine at this point), this is what we saw and heard:
 Now the words were very clear.  The words corresponded to the [NATO
 phonetic
 alphabet](https://en.wikipedia.org/wiki/NATO_phonetic_alphabet) and it
-was far easier to now transcribe the message, which was the flag.
+was far easier to now transcribe the message, which was the flag,
+`SEKAI{KandoRyoko5Five2Two4Four}`.
 
 ## Conclusions and feedback
 The question was really well-designed, and was a refreshing format to
