@@ -6,7 +6,6 @@ tags:
 - network
 - tailscale
 - nixos
-hasmath: true
 ---
 
 ## The problem
