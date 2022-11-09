@@ -63,7 +63,7 @@ bankrupted some users (RIP iced logs).
 |---------------|------------------------|---------:|------:|------:|-----------:|
 | gunpowder     | spawners and more      |       15 |   -10 |  -150 |    12551.2 |
 | gunpowder     | killashop              |       15 |    15 |   225 |    12776.2 |
-| oak log       | stellvia               |        4 |  -114 |  -456 |    12320.2 |
+| oak log       | stellvia               |      114 |    -4 |  -456 |    12320.2 |
 | oak planks    | iced logs              |      456 |     2 |   912 |    13232.2 |
 | birch log     | stellvia               |      432 |    -4 | -1728 |    11504.2 |
 | birch planks  | iced logs              |     1728 |     2 |  3456 |    14960.2 |
