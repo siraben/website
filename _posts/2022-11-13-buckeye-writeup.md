@@ -8,6 +8,8 @@ tags:
 date: 2022-11-13 02:30 -0600
 ---
 
+![Cover image](/assets/buckeye cover.jpg)
+
 Despite having [worked](https://certora.com/) with smart contract
 security, I have never actually performed an attack before---until
 now.  Let's take a look at some not-so-smart contracts, shall we?
