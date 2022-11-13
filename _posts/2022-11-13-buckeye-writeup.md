@@ -294,7 +294,6 @@ if the balance of the sender is more than 10.
         emit Registered(msg.sender, 50);
     }
 
-
     function purchaseBid(uint8 bid) public {
         require(balances[msg.sender] > 10);
         require(msg.sender != selector);
