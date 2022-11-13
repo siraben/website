@@ -1,12 +1,14 @@
 ---
 layout: post
 title: BuckeyeCTF 2022 Writeup - Nile & Andes
+subtitle: Blockchain-oriented challenges that demonstrate that security is a social process just as much as it is technical.
 tags:
 - ctf
 - blockchain
 date: 2022-11-13 02:30 -0600
 ---
-Despite having [worked](https://www.certora.com/) with smart contract
+
+Despite having [worked](https://certora.com/) with smart contract
 security, I have never actually performed an attack before---until
 now.  Let's take a look at some not-so-smart contracts, shall we?
 
