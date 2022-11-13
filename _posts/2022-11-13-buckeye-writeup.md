@@ -76,7 +76,7 @@ contract Nile {
 ```
 
 There's a `createAccount` function that updates the maps corresponding
-on the originator of the transaction (`msg.sender`), then emits an
+to the originator of the transaction (`msg.sender`), then emits an
 event showing that an account with a given address has been created.
 
 ```solidity
