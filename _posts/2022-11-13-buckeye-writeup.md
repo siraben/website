@@ -208,7 +208,7 @@ can just continue creating and redeeming tokens.
 
 [These](https://goerli.etherscan.io/address/0x7083e0e27843e4df3558c546bd971b2d736d75d7)
 series of transactions is proof that I was able to get the flag.
-That's the magic of blockchain, you can prove a heist happened!
+That's the magic of blockchain, [you can prove a heist happened](https://etherscan.io/address/0x59abf3837fa962d6853b4cc0a19513aa031fd32b)!
 
 ## Andes
 ### The problem
