@@ -204,7 +204,7 @@ caller, we get to run the code in the `fallback()` method.
 In the `fallback()` method we update the counter, delete the account,
 create a new one and redeem another 99 tokens.  This works because the
 state in the target contract actually hasn't been updated yet, so we
-can just con
+can just continue creating and redeeming tokens.
 
 [These](https://goerli.etherscan.io/address/0x7083e0e27843e4df3558c546bd971b2d736d75d7)
 series of transactions is proof that I was able to get the flag.
