@@ -27,17 +27,15 @@ trying out random "free hosting" services.
 ## Halfway with Tailscale
 I already use Tailscale on all my devices, so of course when I spin up
 a Minecraft server instance on one device I can immediately connect to
-it from my other ones.  However my friends do not have Tailscale
-(yet!), so unfortunately [node
-sharing](https://tailscale.com/kb/1084/sharing/) is out of the picture
-for now.  However I can still take advantage of Tailscale in that my
-laptop will always have a static IP relative to the server, and the
-server will always have a static IP relative to the public internet.
-So altogether the connection will be deterministic and I don't have to
-resort to any dynamic shenanigans.
+it from my other ones.  My friends do not have Tailscale (yet!), so
+unfortunately [node sharing](https://tailscale.com/kb/1084/sharing/)
+is out of the picture for now, but I can still take advantage of
+Tailscale in that my laptop will always have a static IP relative to
+the server, and the server will always have a static IP relative to
+the public internet.  So altogether the connection will be
+deterministic and I don't have to resort to any dynamic shenanigans.
 
-
-Let's test the theory.
+Let's test the hypothesis.
 
 ```ShellSession
 $ NIXPKGS_ALLOW_UNFREE=1 nix run --impure nixpkgs#minecraft-server
