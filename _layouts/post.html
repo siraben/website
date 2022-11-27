@@ -15,6 +15,14 @@ layout: default
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         {{ page.date | date: date_format }}
       </time>
+        <!-- put the tags on a new line, each tag should have a little bubble around it -->
+     {% if page.tags %}
+     <div class="post-tags">
+       {% for tag in page.tags %}
+       <span class="post-tag" style="font-family: monospace; font-size: 0.8em; background-color: #e6e6e6; padding: 0.2em; border-radius: 0.2em;">{{ tag }}</span>
+       {% endfor %}
+     </div>
+   {% endif %}
       {%- if page.author -%}
         • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
       {%- endif -%}</p>
