@@ -2,6 +2,8 @@
 layout: post
 title: My method for fast mental conversion between ℃ and ℉
 hasmath: true
+tags:
+- hacks
 date: 2022-06-22 21:48 -0700
 ---
 As a speaker of multiple languages, I'm often aware of how inherent

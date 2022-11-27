@@ -3,6 +3,7 @@ layout: post
 title: Dirty Nix flake quality-of-life hacks
 tags:
 - nix
+- hacks
 date: 2022-02-12 22:09 -0600
 ---
 
