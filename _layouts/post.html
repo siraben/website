@@ -17,8 +17,9 @@ layout: default
       </time>
         <!-- put the tags on a new line, each tag should have a little bubble around it -->
      {% if page.tags %}
-     <div class="post-tags">
-       {% for tag in page.tags %}
+      <div class="post-tags">
+       {% assign sorted_tags = page.tags | sort %}
+       {% for tag in sorted_tags %}
        <span class="post-tag" style="font-family: monospace; font-size: 0.8em; background-color: #e6e6e6; padding: 0.2em; border-radius: 0.2em;">{{ tag }}</span>
        {% endfor %}
      </div>
