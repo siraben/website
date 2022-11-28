@@ -3,9 +3,8 @@ layout: post
 title: Hosting a Minecraft server without extra hardware
 subtitle: Or, using Tailscale and iptables to roll your own port-forwarding
 tags:
-- network
 - tailscale
-- nixos
+- minecraft
 ---
 
 ## The problem
