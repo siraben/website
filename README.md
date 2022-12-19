@@ -1,3 +1,3 @@
-# siraben.github.io
+# siraben.dev
 
-Source code for my blog.
+Pretty standard Jekyll blog. Uses Nix for reproducibility.
