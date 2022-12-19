@@ -5,6 +5,7 @@ subtitle: Challenges that demonstrate that security is a social process just as 
 tags:
 - ctf
 - blockchain
+- security
 date: 2022-11-13 02:30 -0600
 ---
 
