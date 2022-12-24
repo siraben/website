@@ -46,7 +46,7 @@ lifetime and mutability restrictions make abstraction more difficult,
 especially for a non-critical program such as a linter.
 
 ## Tree-sitter queries
-Tree-sitter has a builtin [query
+Tree-sitter has a built-in [query
 language](https://tree-sitter.github.io/tree-sitter/using-parsers#pattern-matching-with-queries)
 that lets you write queries to match parts of the AST of interest.
 Think of it as pattern matching, but you don't need to handle every
