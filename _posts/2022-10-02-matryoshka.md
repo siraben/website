@@ -3,6 +3,7 @@ layout: post
 title: SekaiCTF 2022 Writeup - Matryoshka
 tags:
 - ctf
+- misc
 date: 2022-10-02 08:43 -0500
 ---
 
