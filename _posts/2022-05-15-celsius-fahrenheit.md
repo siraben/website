@@ -1,6 +1,6 @@
 ---
 layout: post
-title: My method for fast mental conversion between ℃ and ℉
+title: Fast mental conversion between ℃ and ℉
 hasmath: true
 tags:
 - hacks
