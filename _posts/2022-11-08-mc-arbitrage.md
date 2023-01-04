@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Minecraft markets are inefficient
+title: Market making in Minecraft
 subtitle: How I arbitraged lots of virtual money, and how you can, too!
 tags:
 - minecraft
