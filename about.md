@@ -8,7 +8,7 @@ at Yale University.  I'm interested in formal verification,
 programming languages, operating systems and machine learning.
 
 I graduated from Vanderbilt University in 2023 with a bachelors
-in computer science and mathematics, honors and highest honors
+in computer science and mathematics, with honors and highest honors
 respectively.
 
 This site was created with [Jekyll](https://jekyllrb.com/) and
