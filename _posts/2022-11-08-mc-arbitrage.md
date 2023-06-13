@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Market making in Minecraft
+title: Arbitrage in Minecraft markets
 subtitle: How I arbitraged lots of virtual money, and how you can, too!
 tags:
 - minecraft
