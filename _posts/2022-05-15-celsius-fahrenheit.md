@@ -24,7 +24,7 @@ a bit more, then the error is 0.25℃.
 
 ## Anchor points
 I memorize the following table.  I recommend remembering that 50℉
-corresponds to 10℃. Since Fahrenheit and Celsius have a linear
+corresponds to 10℃.  Since Fahrenheit and Celsius have a linear
 relationship, a difference of 9℉ corresponds to a difference of 5℃.
 You can get the other numbers by adding as needed.
 
@@ -42,17 +42,17 @@ You can get the other numbers by adding as needed.
 
 Given a temperature $$T_F$$ and the table,
 
-1. Look up the nearest Farenheit value $$v$$ in the table.  If it
+1. Look up the nearest Fahrenheit value $$v$$ in the table.  If it
    exists then you are done and the answer is $$T[v]$$.
 2. Otherwise, compute $$\frac{T_F-T[v]}{2}$$, let the result
-   be $$d$$
-3. The approximation is given by $$T[v]+d$$
+   be $$d$$.
+3. The approximation is given by $$T[v]+d$$.
 
 Here's an example.
 
 1. Suppose we are given 72℉.  The nearest value in the table is 68℉,
    corresponding to 20℃.
-2. Now we compute $$\frac{72-68}{2}=2$$
+2. Now we compute $$\frac{72-68}{2}=2$$.
 3. Now we add the two results to get 22℃.
 
 ## Code
@@ -66,7 +66,7 @@ def convert_approx(given):
     # Nearest memorized temperature
     close = round((given - 5) / 9) * 9 + 5
     # Convert to Celsius
-    rough = (close - 32) // 9
+    rough = (close - 32) * 5 / 9
     # Half of the difference
     diff = (given - close) / 2
     return rough + diff
