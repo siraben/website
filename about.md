@@ -13,4 +13,4 @@ in Computer Science.
 
 This site was created with [Jekyll](https://jekyllrb.com/) and
 deployed using [Netlify](https://www.netlify.com/). View the
-source [here](https://github.com/siraben/siraben.github.io).
+source [here](https://github.com/siraben/website).
