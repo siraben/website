@@ -1,0 +1,31 @@
+.post-tag {
+  font-family: monospace;
+  font-size: 0.8em;
+  background-color: var(--minima-code-background-color);
+  color: var(--minima-text-color);
+  border: 1px solid var(--minima-border-color-01);
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  display: inline-block;
+  margin-bottom: 0.2em;
+}
+.post-meta .post-tag {
+  color: var(--minima-text-color);
+}
+
+.post-date {
+  font-family: monospace;
+}
+
+.error-container {
+  margin: 10px auto;
+  max-width: 600px;
+  text-align: center;
+
+  h1 {
+    margin: 30px 0;
+    font-size: 4em;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+}
