@@ -53,3 +53,11 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
+  - flake.nix
+  - flake.lock
+  - default.nix
+  - gemset.nix
+  - nix/
+  - result
+  - .envrc
+  - README.md
