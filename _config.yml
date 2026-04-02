@@ -19,18 +19,25 @@
 # in the templates via {{ site.myvariable }}.
 
 title: siraben's musings
-email: siraben@siraben.dev
 description: >-
   Writing proofs and programs.
 baseurl: ""
 url: "https://siraben.dev"
-github_username:  siraben
+author:
+  name: Ben
+  email: siraben@siraben.dev
 
 # Build settings
 markdown: kramdown
 kramdown:
   math_engine: mathjax
 theme: minima
+minima:
+  skin: auto
+  social_links:
+    - { url: "https://github.com/siraben", icon: github, title: GitHub }
+sass:
+  quiet_deps: true
 plugins:
   - jekyll-feed
 

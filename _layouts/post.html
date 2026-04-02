@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: base
 ---
 
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
@@ -10,23 +10,23 @@ layout: default
       {{ page.subtitle }}
     </h2>
     {% endif %}
-    <p class="post-meta">
+    <div class="post-meta">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         {{ page.date | date: date_format }}
       </time>
-        <!-- put the tags on a new line, each tag should have a little bubble around it -->
      {% if page.tags %}
       <div class="post-tags">
        {% assign sorted_tags = page.tags | sort %}
        {% for tag in sorted_tags %}
-       <span class="post-tag" style="font-family: monospace; font-size: 0.8em; background-color: #e6e6e6; padding: 0.2em; border-radius: 0.2em;">{{ tag }}</span>
+       <span class="post-tag">{{ tag }}</span>
        {% endfor %}
      </div>
    {% endif %}
       {%- if page.author -%}
         • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
-      {%- endif -%}</p>
+      {%- endif -%}
+    </div>
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
@@ -42,5 +42,5 @@ layout: default
 </article>
 
 {% if page.hasmath %}
-  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" crossorigin="anonymous"></script>
 {% endif %}

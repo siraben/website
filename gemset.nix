@@ -267,11 +267,13 @@
     groups = ["default"];
     platforms = [];
     source = {
-      remotes = ["https://rubygems.org"];
-      sha256 = "0nm4ib1pz431ydrd2q0hzw10aykmsf74644992mz1864gcxlwhww";
-      type = "gem";
+      fetchSubmodules = false;
+      rev = "bf9ef989246b63536e9db61082f663f1a6d4d9ce";
+      sha256 = "0npn0dgx25gym940abywymbxny11m2vcjlbnybbyab9z6wzwdpg3";
+      type = "git";
+      url = "https://github.com/jekyll/minima.git";
     };
-    version = "2.5.2";
+    version = "3.0.0.dev";
   };
   pathutil = {
     dependencies = ["forwardable-extended"];

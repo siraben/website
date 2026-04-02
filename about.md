@@ -12,5 +12,5 @@ respectively. I graduated from Yale University in 2025 with a Masters
 in Computer Science.
 
 This site was created with [Jekyll](https://jekyllrb.com/) and
-deployed using [Netlify](https://www.netlify.com/). View the
+deployed using [GitHub Pages](https://pages.github.com/). View the
 source [here](https://github.com/siraben/website).
