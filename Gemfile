@@ -31,4 +31,9 @@ gem "wdm", "~> 0.1", :platforms => [:windows]
 # Ruby 3.0+ doesn't include webrick by default
 gem "webrick", "~> 1.8"
 
+# Ruby 3.4+ removed these from default gems
+gem "csv"
+gem "logger"
+gem "base64"
+
 gem "jekyll-compose", "~> 0.12"
